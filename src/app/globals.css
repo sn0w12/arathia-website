@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+:root {
+    --background: #f5f1ea;
+    --foreground: #290d00;
+    --accent: #b7965b;
+    --accent-foreground: #efdbb9;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #181611;
+        --foreground: white;
+    }
+}
+
+@utility center-absolute {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin-absolute {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@utility spin-absolute {
+    animation: spin-absolute var(--spin-duration, 1s) linear infinite;
+}
+
+@keyframes expand {
+    to {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+    }
+}
+
+@utility expand {
+    animation: expand var(--expand-duration, 1s) ease-out forwards;
+}
+
+@keyframes moveLeft {
+    0% {
+        transform: translateX(100vw);
+    }
+    100% {
+        transform: translateX(-100vw);
+    }
+}
+
+@keyframes moveRight {
+    0% {
+        transform: translateX(-100vw);
+    }
+    100% {
+        transform: translateX(100vw);
+    }
+}
+
+.cloud-left {
+    animation: moveLeft linear infinite;
+}
+
+.cloud-right {
+    animation: moveRight linear infinite;
+}
+
+body {
+    background: var(--background);
+    color: var(--foreground);
+}
+
+.leaflet-control-layers {
+    background: var(--background) !important;
+    color: var(--foreground) !important;
+    border-color: var(--accent) !important;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+    background: var(--background) !important;
+    color: var(--foreground) !important;
+}
+
+.leaflet-popup-close-button {
+    visibility: hidden;
+}
+
+.leaflet-container a {
+    color: transparent !important;
+}

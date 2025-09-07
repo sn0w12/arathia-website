@@ -1,0 +1,385 @@
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import {
+    MapContainer,
+    TileLayer,
+    LayerGroup,
+    LayersControl,
+    useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { CustomMarker, MarkerType } from "./marker";
+import jsonMarkers from "../../../public/data/markers/markers.json";
+import { CustomZoomControl } from "./custom-zoom-control";
+
+// Define region codes and layer types (from your map.ts)
+const regionCodes = ["ar", "ar1213BR", "mo", "el"] as const;
+const layerTypes = [
+    "capital",
+    "cityBig",
+    "citySmall",
+    "town",
+    "nature",
+    "important",
+    "character",
+] as const;
+
+const typeNames: Record<string, string> = {
+    capital: "Capitals",
+    cityBig: "Large Cities",
+    citySmall: "Small Cities",
+    town: "Towns",
+    nature: "Nature",
+    important: "Locations",
+    character: "Characters",
+};
+
+const mapConfigs: Record<
+    string,
+    {
+        url: string;
+        backgroundUrl: string;
+        minZoom: number;
+        maxZoom: number;
+        overlays: string[];
+        variants: string[];
+    }
+> = {
+    Arathia: {
+        url: "https://www.arathia.net/maps/Main/arathia/{z}/{x}/{y}.png",
+        backgroundUrl:
+            "https://www.arathia.net/maps/Main/arathiaBackground/{z}/{x}/{y}.png",
+        minZoom: 2.75,
+        maxZoom: 5.4,
+        overlays: ["ar"],
+        variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
+    },
+    "Arathia Clean": {
+        url: "https://www.arathia.net/maps/Main/arathiaClean/{z}/{x}/{y}.png",
+        backgroundUrl:
+            "https://www.arathia.net/maps/Main/arathiaBackground/{z}/{x}/{y}.png",
+        minZoom: 2.75,
+        maxZoom: 5.4,
+        overlays: ["ar"],
+        variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
+    },
+    "Arathia 1213 B.R": {
+        url: "https://www.arathia.net/maps/Main/arathia1213BR/{z}/{x}/{y}.png",
+        backgroundUrl:
+            "https://www.arathia.net/maps/Main/arathiaBackground/{z}/{x}/{y}.png",
+        minZoom: 2.75,
+        maxZoom: 5.4,
+        overlays: ["ar1213BR"],
+        variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
+    },
+    Morturia: {
+        url: "https://www.arathia.net/maps/Main/morturia/{z}/{x}/{y}.png",
+        backgroundUrl:
+            "https://www.arathia.net/maps/Main/morturiaBackground/{z}/{x}/{y}.png",
+        minZoom: 2.75,
+        maxZoom: 5.4,
+        overlays: ["mo"],
+        variants: ["Morturia"],
+    },
+    Elysium: {
+        url: "https://www.arathia.net/maps/Main/elysium/{z}/{x}/{y}.png",
+        backgroundUrl:
+            "https://www.arathia.net/maps/Main/elysiumBackground/{z}/{x}/{y}.png",
+        minZoom: 2.5,
+        maxZoom: 5.4,
+        overlays: ["el"],
+        variants: ["Elysium"],
+    },
+};
+
+function MapResizer() {
+    const map = useMap();
+    useEffect(() => {
+        map.createPane("backgroundPane");
+        map.createPane("basePane");
+        const backgroundPane = map.getPane("backgroundPane");
+        if (backgroundPane) backgroundPane.style.zIndex = "150";
+        const basePane = map.getPane("basePane");
+        if (basePane) basePane.style.zIndex = "220";
+        map.invalidateSize();
+    }, [map]);
+    return null;
+}
+
+function BaseLayerChangeHandler({
+    onChange,
+}: {
+    onChange: (name: string) => void;
+}) {
+    const map = useMap();
+    useEffect(() => {
+        const handleBaseLayerChange = (e: { name: string }) => {
+            onChange(e.name);
+        };
+        map.on("baselayerchange", handleBaseLayerChange);
+        return () => {
+            map.off("baselayerchange", handleBaseLayerChange);
+        };
+    }, [map, onChange]);
+    return null;
+}
+
+interface Marker {
+    id: string;
+    region: (typeof regionCodes)[number];
+    coordinates: [number, number];
+    icon: MarkerType;
+    title: string;
+    description: string;
+    popuptitle: string;
+    category: string;
+    link: boolean;
+    customlink: string | null;
+}
+
+interface YearSelectorProps {
+    currentMap: string;
+    onChange: (map: string) => void;
+    layersControlRef: React.RefObject<L.Control.Layers | null>;
+}
+
+const YearSelector: React.FC<YearSelectorProps> = ({
+    currentMap,
+    onChange,
+    layersControlRef,
+}) => {
+    useEffect(() => {
+        if (!layersControlRef.current) return;
+
+        const control = layersControlRef.current;
+        const container = control.getContainer();
+        if (!container) return;
+
+        // Store original _update on the control if not already stored
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (!(control as any).originalUpdate) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (control as any).originalUpdate = (control as any)._update;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const originalUpdate = (control as any).originalUpdate;
+
+        const currentConfig = mapConfigs[currentMap];
+        const variants = currentConfig ? currentConfig.variants : [];
+
+        // Always remove existing wrapper
+        const existingWrapper = container.querySelector("#year-wrapper");
+        if (existingWrapper) {
+            existingWrapper.remove();
+        }
+
+        if (variants.length > 1) {
+            // Override _update to append the wrapper after update
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (control as any)._update = function () {
+                // Call original update
+                originalUpdate.call(this);
+                // Then append the wrapper
+                let wrapper = container.querySelector(
+                    "#year-wrapper"
+                ) as HTMLElement;
+                let select: HTMLSelectElement | null = null;
+                if (!wrapper) {
+                    // Create a wrapper div to match the structure
+                    wrapper = document.createElement("div");
+                    wrapper.id = "year-wrapper";
+                    wrapper.style.padding = "5px 10px";
+                    const label = document.createElement("label");
+                    label.textContent = "Variant: ";
+                    label.style.fontSize = "12px";
+                    label.style.fontWeight = "bold";
+                    select = document.createElement("select");
+                    select.id = "year-select";
+                    select.style.width = "100%";
+                    select.style.marginTop = "5px";
+                    select.innerHTML = variants
+                        .map(
+                            (variant) =>
+                                `<option value="${variant}" style="color: #181611;">${variant}</option>`
+                        )
+                        .join("");
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(select);
+                } else {
+                    select = wrapper.querySelector(
+                        "#year-select"
+                    ) as HTMLSelectElement;
+                }
+                if (select) {
+                    select.value = currentMap;
+                    select.onchange = (e) => {
+                        onChange((e.target as HTMLSelectElement).value);
+                    };
+                }
+                // Find the base layers list and append after
+                const baseLayersList = container.querySelector(
+                    ".leaflet-control-layers-base"
+                );
+                if (baseLayersList && !baseLayersList.contains(wrapper)) {
+                    baseLayersList.appendChild(wrapper);
+                } else if (!container.contains(wrapper)) {
+                    container.appendChild(wrapper);
+                }
+            };
+
+            // Call _update to add the wrapper initially
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (control as any)._update();
+        } else {
+            // Restore original _update
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (control as any)._update = originalUpdate;
+            // Call _update to refresh the control
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (control as any)._update();
+        }
+    }, [currentMap, onChange, layersControlRef]);
+
+    return null;
+};
+
+export default function MapClient() {
+    const markers: Marker[] = jsonMarkers as unknown as Marker[];
+
+    const [currentMap, setCurrentMap] = useState("Arathia");
+
+    const baseTileLayerRef = useRef<L.TileLayer | null>(null);
+    const backgroundTileLayerRef = useRef<L.TileLayer | null>(null);
+    const layersControlRef = useRef<L.Control.Layers | null>(null);
+
+    useEffect(() => {
+        if (baseTileLayerRef.current) {
+            baseTileLayerRef.current.setUrl(mapConfigs[currentMap].url);
+        }
+        if (backgroundTileLayerRef.current) {
+            backgroundTileLayerRef.current.setUrl(
+                mapConfigs[currentMap].backgroundUrl
+            );
+        }
+    }, [currentMap]);
+
+    const overlayConfigs = regionCodes.flatMap((region) =>
+        layerTypes.map((type) => ({
+            region,
+            type,
+            name: `${typeNames[type]}`,
+            checked: true,
+        }))
+    );
+
+    const currentConfig = mapConfigs[currentMap];
+    const visibleOverlays = currentConfig ? currentConfig.overlays : [];
+
+    const handleBaseLayerChange = (name: string) => {
+        setCurrentMap(name);
+    };
+
+    return (
+        <div style={{ height: "100vh", width: "100%" }}>
+            <MapContainer
+                center={[0, 0]}
+                zoom={0}
+                minZoom={2.5}
+                maxZoom={5.4}
+                scrollWheelZoom={true}
+                style={{ height: "100%", width: "100%" }}
+                zoomControl={false}
+                attributionControl={false}
+            >
+                <MapResizer />
+                <BaseLayerChangeHandler onChange={handleBaseLayerChange} />
+                <CustomZoomControl />
+                {/* Background TileLayer */}
+                <TileLayer
+                    ref={backgroundTileLayerRef}
+                    url={mapConfigs.Arathia.backgroundUrl}
+                    pane="backgroundPane"
+                />
+                {/* Layers Control */}
+                <LayersControl ref={layersControlRef} position="topright">
+                    {/* Base Layers */}
+                    <LayersControl.BaseLayer checked name="Arathia">
+                        <TileLayer
+                            ref={baseTileLayerRef}
+                            url={mapConfigs.Arathia.url}
+                            pane="basePane"
+                        />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer name="Morturia">
+                        <TileLayer
+                            url="https://www.arathia.net/maps/Main/morturia/{z}/{x}/{y}.png"
+                            pane="basePane"
+                        />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer name="Elysium">
+                        <TileLayer
+                            url="https://www.arathia.net/maps/Main/elysium/{z}/{x}/{y}.png"
+                            pane="basePane"
+                        />
+                    </LayersControl.BaseLayer>
+                    {/* Overlays */}
+                    {visibleOverlays.flatMap((region) =>
+                        layerTypes.map((type) => {
+                            const config = overlayConfigs.find(
+                                (c) => c.region === region && c.type === type
+                            );
+                            if (!config) return null;
+                            return (
+                                <LayersControl.Overlay
+                                    key={`${currentMap}-${config.region}-${config.type}`}
+                                    checked={true}
+                                    name={config.name}
+                                >
+                                    <LayerGroup>
+                                        {markers
+                                            .filter(
+                                                (m) =>
+                                                    m.region ===
+                                                        config.region &&
+                                                    m.icon === config.type
+                                            )
+                                            .map((marker) => (
+                                                <CustomMarker
+                                                    key={marker.id}
+                                                    type={
+                                                        config.type as MarkerType
+                                                    }
+                                                    position={
+                                                        marker.coordinates
+                                                    }
+                                                    popupTitle={
+                                                        marker.popuptitle
+                                                    }
+                                                    description={
+                                                        marker.description
+                                                    }
+                                                    link={marker.link}
+                                                    customLink={
+                                                        marker.customlink
+                                                    }
+                                                    category={marker.category}
+                                                />
+                                            ))}
+                                    </LayerGroup>
+                                </LayersControl.Overlay>
+                            );
+                        })
+                    )}
+                </LayersControl>
+                <YearSelector
+                    key={currentMap}
+                    currentMap={currentMap}
+                    onChange={setCurrentMap}
+                    layersControlRef={layersControlRef}
+                />
+            </MapContainer>
+        </div>
+    );
+}
