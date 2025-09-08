@@ -5,9 +5,9 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import ReactDOM from "react-dom/client";
 import { AnimatedBackground } from "@/components/metaphor/animated-bg";
-import { Text } from "@/components/metaphor/text";
 import { playSound } from "@/lib/audio";
 import { useTransition } from "@/contexts/transition-context";
+import { Plus, Minus, ArrowLeft } from "lucide-react";
 
 export function CustomZoomControl() {
     const map = useMap();
@@ -44,49 +44,7 @@ export function CustomZoomControl() {
                 };
 
                 root.render(
-                    <div className="flex flex-row items-center gap-4 p-2">
-                        <div className="flex flex-col gap-2">
-                            <div
-                                onMouseEnter={() => {
-                                    playSound("2.mp3");
-                                    setHoveredIndex(1);
-                                }}
-                                onMouseLeave={() => setHoveredIndex(null)}
-                            >
-                                <AnimatedBackground
-                                    hovered={hoveredIndex === 1}
-                                    className="cursor-pointer px-2"
-                                    onClick={() => {
-                                        playSound("8.mp3");
-                                        self._map.zoomIn();
-                                    }}
-                                >
-                                    <Text className="text-2xl font-bold">
-                                        +
-                                    </Text>
-                                </AnimatedBackground>
-                            </div>
-                            <div
-                                onMouseEnter={() => {
-                                    playSound("2.mp3");
-                                    setHoveredIndex(2);
-                                }}
-                                onMouseLeave={() => setHoveredIndex(null)}
-                            >
-                                <AnimatedBackground
-                                    hovered={hoveredIndex === 2}
-                                    className="cursor-pointer px-2"
-                                    onClick={() => {
-                                        playSound("8.mp3");
-                                        self._map.zoomOut();
-                                    }}
-                                >
-                                    <Text className="text-2xl font-bold">
-                                        −
-                                    </Text>
-                                </AnimatedBackground>
-                            </div>
-                        </div>
+                    <div className="flex flex-col gap-2">
                         <div
                             onMouseEnter={() => {
                                 playSound("2.mp3");
@@ -96,10 +54,46 @@ export function CustomZoomControl() {
                         >
                             <AnimatedBackground
                                 hovered={hoveredIndex === 0}
-                                className="cursor-pointer px-2 font-[juana]"
+                                className="cursor-pointer px-2"
                                 onClick={handleBack}
                             >
-                                <Text className="text-5xl font-bold">BACK</Text>
+                                <ArrowLeft className="size-6" />
+                            </AnimatedBackground>
+                        </div>
+                        <div
+                            onMouseEnter={() => {
+                                playSound("2.mp3");
+                                setHoveredIndex(1);
+                            }}
+                            onMouseLeave={() => setHoveredIndex(null)}
+                        >
+                            <AnimatedBackground
+                                hovered={hoveredIndex === 1}
+                                className="cursor-pointer px-2"
+                                onClick={() => {
+                                    playSound("8.mp3");
+                                    self._map.zoomIn();
+                                }}
+                            >
+                                <Plus className="size-6" />
+                            </AnimatedBackground>
+                        </div>
+                        <div
+                            onMouseEnter={() => {
+                                playSound("2.mp3");
+                                setHoveredIndex(2);
+                            }}
+                            onMouseLeave={() => setHoveredIndex(null)}
+                        >
+                            <AnimatedBackground
+                                hovered={hoveredIndex === 2}
+                                className="cursor-pointer px-2"
+                                onClick={() => {
+                                    playSound("8.mp3");
+                                    self._map.zoomOut();
+                                }}
+                            >
+                                <Minus className="size-6" />
                             </AnimatedBackground>
                         </div>
                     </div>
