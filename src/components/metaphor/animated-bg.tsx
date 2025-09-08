@@ -235,6 +235,7 @@ export function ImageBbox({
     const lastIndexRef = useRef(-1);
     const [flipH, setFlipH] = useState(1);
     const [flipV, setFlipV] = useState(1);
+    const [internalScale, setInternalScale] = useState({ x: 0, y: 0 });
     const [scaleMultiplier, setScaleMultiplier] = useState(1);
     const [animationMultiplier, setAnimationMultiplier] = useState(1);
     const [transition, setTransition] = useState("none");
@@ -407,8 +408,6 @@ export function ImageBbox({
         fitMode,
         currentImage,
     ]);
-
-    const [internalScale, setInternalScale] = useState({ x: 1, y: 1 });
 
     const leftPercent = align === "left" ? 0 : align === "right" ? 100 : 50;
     const translateXPercent =
