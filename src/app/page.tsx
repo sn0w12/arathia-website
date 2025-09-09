@@ -11,7 +11,7 @@ import { useTransition } from "@/contexts/transition-context";
 import { useNavigation } from "@/hooks/use-navigation";
 import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
 
-import Background from "../../public/bg/home-background.webp";
+import BackgroundBg from "../../public/bg/home-background-background.webp";
 import BackgroundMid from "../../public/bg/home-background-midground.webp";
 import SonsOfAntares from "../../public/logos/Sons_of_antares.png";
 import { handleHover } from "@/lib/util";
@@ -75,7 +75,7 @@ export default function Home() {
             className="fixed inset-0 h-screen"
         >
             <Image
-                src={Background}
+                src={BackgroundBg}
                 alt="Background"
                 className="absolute inset-0 h-full w-full object-cover"
             />
