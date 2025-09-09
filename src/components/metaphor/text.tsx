@@ -6,13 +6,16 @@ import { cn } from "@/lib/util";
 
 export type TextureType = "light" | "tight";
 interface TextProps extends React.ComponentProps<"span"> {
+    textColor?: string;
     textureType?: TextureType;
     interval?: number;
 }
 
 export function Text({
     children,
+    textColor = "white",
     className,
+    style,
     textureType = "tight",
     interval = 300,
     ...props
@@ -59,25 +62,92 @@ export function Text({
     const [x, y, ,] = texture.bbox;
     const [imageWidth, imageHeight] = texture.size;
 
-    const style: React.CSSProperties = {
-        backgroundImage: `url(${texture.url})`,
-        backgroundSize: `${imageWidth * renderScale.x}px ${
+    const internalStyle: React.CSSProperties = {
+        maskImage: `url(${texture.url})`,
+        WebkitMaskImage: `url(${texture.url})`,
+        maskSize: `${imageWidth * renderScale.x}px ${
             imageHeight * renderScale.y
         }px`,
-        backgroundPosition: `-${x * renderScale.x}px -${y * renderScale.y}px`,
-        backgroundRepeat: "no-repeat",
-        backgroundClip: "text",
-        WebkitBackgroundClip: "text",
+        WebkitMaskSize: `${imageWidth * renderScale.x}px ${
+            imageHeight * renderScale.y
+        }px`,
+        maskPosition: `-${x * renderScale.x}px -${y * renderScale.y}px`,
+        WebkitMaskPosition: `-${x * renderScale.x}px -${y * renderScale.y}px`,
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        color: textColor,
+        ...style,
     };
 
     return (
         <span
             ref={ref}
             className={cn("text-transparent inline-block", className)}
-            style={style}
+            style={internalStyle}
             {...props}
         >
             {children}
         </span>
+    );
+}
+
+interface ClippedTextProps {
+    children: React.ReactNode;
+    points: [number, number, number, number, number, number, number, number];
+    frontColor?: string;
+    backColor?: string;
+    className?: string;
+}
+
+export function ClippedText({
+    children,
+    points,
+    frontColor = "white",
+    backColor = "red",
+    className,
+}: ClippedTextProps) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [clipPath, setClipPath] = useState<string>("");
+
+    useEffect(() => {
+        if (ref.current) {
+            const [tlx, tly, trx, try_, brx, bry, blx, bly] = points;
+            const polygon = `${tlx * 100}% ${tly * 100}%, ${trx * 100}% ${
+                try_ * 100
+            }%, ${brx * 100}% ${bry * 100}%, ${blx * 100}% ${bly * 100}%`;
+            setClipPath(`polygon(${polygon})`);
+        }
+    }, [points]);
+
+    return (
+        <div
+            ref={ref}
+            className={className}
+            style={{ position: "relative", display: "inline-block" }}
+        >
+            <Text
+                textColor={backColor}
+                style={{
+                    position: "relative",
+                    top: 0,
+                    left: 0,
+                    zIndex: 0,
+                }}
+            >
+                {children}
+            </Text>
+            <Text
+                textColor={frontColor}
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    zIndex: 1,
+                    clipPath,
+                }}
+            >
+                {children}
+            </Text>
+        </div>
     );
 }
