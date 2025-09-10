@@ -32,8 +32,18 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const isDevelopment = process.env.NODE_ENV === "development";
+
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
+            <head>
+                {isDevelopment && (
+                    <script
+                        src="https://unpkg.com/react-scan/dist/auto.global.js"
+                        async
+                    />
+                )}
+            </head>
             <body className={`${juana.className} antialiased overflow-hidden`}>
                 <TransitionProvider>{children}</TransitionProvider>
             </body>

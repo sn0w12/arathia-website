@@ -8,7 +8,15 @@ import {
     smallImages,
 } from "@/lib/images";
 import { cn } from "@/lib/util";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import {
+    forwardRef,
+    memo,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
 const activeSprites = new Set<number>();
 
@@ -46,6 +54,9 @@ interface AnimatedBackgroundProps extends React.ComponentProps<"div"> {
     fg?: number;
     mg?: number;
     bg?: number;
+    bgColor?: string;
+    mgColor?: string;
+    fgColor?: string;
     interval?: number;
     hovered?: boolean;
     onHover?: (ref: React.RefObject<HTMLDivElement | null>) => void;
@@ -63,6 +74,9 @@ export const AnimatedBackground = forwardRef<
             fg = 2,
             mg = 3,
             bg = 1,
+            fgColor = "var(--color-accent-foreground)",
+            mgColor = "var(--color-accent)",
+            bgColor = "white",
             interval = 200,
             hovered,
             onHover,
@@ -106,6 +120,7 @@ export const AnimatedBackground = forwardRef<
                         className={
                             effectiveHovered ? "opacity-100" : "opacity-0"
                         }
+                        color={bgColor}
                         scale={{ x: 1.7, y: 2.2 }}
                     />
                 ))}
@@ -120,6 +135,7 @@ export const AnimatedBackground = forwardRef<
                         className={
                             effectiveHovered ? "opacity-100" : "opacity-0"
                         }
+                        color={bgColor}
                         scale={{ x: 1, y: 1 }}
                         fitMode="fitWidth"
                         rotation={{ min: -35, max: 35 }}
@@ -137,11 +153,11 @@ export const AnimatedBackground = forwardRef<
                         className={
                             effectiveHovered ? "opacity-100" : "opacity-0"
                         }
-                        color="var(--color-accent)"
+                        color={mgColor}
                         scale={{ x: 1.5, y: 2 }}
                     />
                 ))}
-                {Array.from({ length: Math.round(mg / 2) }, (_, i) => (
+                {Array.from({ length: Math.floor(mg / 2) }, (_, i) => (
                     <ImageBbox
                         key={`mg-${i}`}
                         images={smallImages}
@@ -152,14 +168,14 @@ export const AnimatedBackground = forwardRef<
                         className={
                             effectiveHovered ? "opacity-100" : "opacity-0"
                         }
-                        color="var(--color-accent)"
+                        color={mgColor}
                         scale={{ x: 1.5, y: 1.5 }}
                         fitMode="fitHeight"
                         align="right"
                         showChance={0.3}
                     />
                 ))}
-                {Array.from({ length: Math.round(mg / 2) }, (_, i) => (
+                {Array.from({ length: Math.floor(mg / 2) }, (_, i) => (
                     <ImageBbox
                         key={`mg-${i}`}
                         images={lines}
@@ -170,7 +186,7 @@ export const AnimatedBackground = forwardRef<
                         className={
                             effectiveHovered ? "opacity-100" : "opacity-0"
                         }
-                        color="var(--color-accent)"
+                        color={mgColor}
                         scale={{ x: 1.5, y: 1 }}
                         fitMode="fitWidth"
                         rotation={{ min: -25, max: 25 }}
@@ -188,7 +204,7 @@ export const AnimatedBackground = forwardRef<
                         className={
                             effectiveHovered ? "opacity-30" : "opacity-0"
                         }
-                        color="var(--color-accent-foreground)"
+                        color={fgColor}
                         scale={{ x: 1.5, y: 1.5 }}
                         fitMode="fitHeight"
                         offset={{ min: -30, max: 30 }}
@@ -200,7 +216,7 @@ export const AnimatedBackground = forwardRef<
 );
 AnimatedBackground.displayName = "AnimatedBackground";
 
-export function ImageBbox({
+const ImageBboxComponent = function ImageBbox({
     images,
     interval,
     isHovered,
@@ -231,6 +247,10 @@ export function ImageBbox({
     offset?: NumberOrRange;
     animateScale?: boolean;
 }) {
+    const randomImage = useCallback((images: ImageInfo[]) => {
+        return images[Math.floor(Math.random() * images.length)];
+    }, []);
+
     const [currentImage, setCurrentImage] = useState(() => randomImage(images));
     const lastIndexRef = useRef(-1);
     const [flipH, setFlipH] = useState(1);
@@ -253,12 +273,9 @@ export function ImageBbox({
         return offset.min + Math.random() * (offset.max - offset.min);
     });
     const [isShowing, setIsShowing] = useState(true);
+    const resolvedScale = useMemo(() => resolveScale(scale), [scale]);
 
-    function randomImage(images: ImageInfo[]) {
-        return images[Math.floor(Math.random() * images.length)];
-    }
-
-    function getRandomIndex(images: ImageInfo[]) {
+    const getRandomIndex = useCallback((images: ImageInfo[]) => {
         let newIndex;
         let attempts = 0;
         const maxAttempts = images.length * 2;
@@ -276,7 +293,7 @@ export function ImageBbox({
         );
 
         return newIndex;
-    }
+    }, []);
 
     useEffect(() => {
         if (isHovered) {
@@ -300,7 +317,6 @@ export function ImageBbox({
                             : offset.min +
                               Math.random() * (offset.max - offset.min);
 
-                    const resolvedScale = resolveScale(scale);
                     const newScale = calculateScale(
                         sprite,
                         resolvedScale,
@@ -376,7 +392,6 @@ export function ImageBbox({
         if (ref.current) {
             const parent = ref.current.parentElement as HTMLElement;
             if (parent) {
-                const resolvedScale = resolveScale(scale);
                 const newScale = calculateScale(
                     currentImage,
                     resolvedScale,
@@ -407,8 +422,8 @@ export function ImageBbox({
         flipV,
         fitMode,
         currentImage,
+        resolvedScale,
     ]);
-
     const leftPercent = align === "left" ? 0 : align === "right" ? 100 : 50;
     const translateXPercent =
         align === "left" ? 0 : align === "right" ? -100 : -50;
@@ -438,6 +453,7 @@ export function ImageBbox({
                 }, ${
                     internalScale.y * (animateScale ? animationMultiplier : 1)
                 }) rotate(${currentRotation}deg)`,
+                willChange: "transform, opacity",
                 transformOrigin:
                     align === "left"
                         ? "left center"
@@ -449,4 +465,8 @@ export function ImageBbox({
             }}
         />
     );
-}
+};
+
+export const ImageBbox = memo(ImageBboxComponent, (prevProps, nextProps) => {
+    return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+});

@@ -29,9 +29,6 @@ export const AnimatedLink = forwardRef<HTMLDivElement, AnimatedLinkProps>(
         },
         ref
     ) => {
-        const color =
-            textureType === "light" ? "text-white/70" : "text-transparent";
-
         return (
             <AnimatedBackground
                 ref={ref}
@@ -40,7 +37,7 @@ export const AnimatedLink = forwardRef<HTMLDivElement, AnimatedLinkProps>(
                 hovered={selected}
             >
                 <Text
-                    className={cn("font-black text-8xl", color, className)}
+                    className={cn("font-black text-8xl", className)}
                     textureType={textureType}
                 >
                     <TransitionLink href={href}>{text}</TransitionLink>

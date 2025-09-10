@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 import xxSmallCircle from "../../../public/circles/xxSmallCircle.webp";
 import xSmallCircle from "../../../public/circles/xSmallCircle.webp";
@@ -22,16 +23,27 @@ const circles = {
 
 export function Circle({ size = "sm", className, spinDuration }: CircleProps) {
     const imageSrc = circles[size];
-    const spinClass = spinDuration ? "spin-absolute" : "";
-    const spinStyle = spinDuration
-        ? ({ ["--spin-duration"]: `${spinDuration}s` } as React.CSSProperties)
-        : undefined;
     return (
-        <Image
-            className={`${className} ${spinClass} pointer-events-none`}
-            src={imageSrc}
-            alt={`Circle ${size}`}
-            style={spinStyle}
-        />
+        <motion.div
+            className={`${className} pointer-events-none`}
+            style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+            }}
+            initial={{ x: "-50%", y: "-50%" }}
+            animate={spinDuration ? { rotate: 360 } : {}}
+            transition={
+                spinDuration
+                    ? {
+                          duration: spinDuration,
+                          repeat: Infinity,
+                          ease: "linear",
+                      }
+                    : {}
+            }
+        >
+            <Image src={imageSrc} alt={`Circle ${size}`} />
+        </motion.div>
     );
 }

@@ -128,7 +128,7 @@ export function NoiseFade({
                         <feTurbulence
                             type="fractalNoise"
                             baseFrequency={baseFrequency}
-                            numOctaves="6"
+                            numOctaves="3"
                             seed="1"
                             result="noise"
                         />
@@ -191,7 +191,7 @@ export function NoiseFade({
                         <feTurbulence
                             type="fractalNoise"
                             baseFrequency={baseFrequency}
-                            numOctaves="6"
+                            numOctaves="3"
                             seed="1"
                             result="noise"
                         />
@@ -249,7 +249,6 @@ export function NoiseFade({
                             ? `url(#noiseMaskIn-${animationId})`
                             : `url(#noiseMaskOut-${animationId})`,
                     opacity: animationStage !== "hidden" ? 1 : 0,
-                    transition: `opacity ${duration}ms ease-in-out`,
                 }}
                 className={className}
                 {...props}

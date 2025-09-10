@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import React, {
+    useState,
+    useEffect,
+    useRef,
+    useLayoutEffect,
+    useCallback,
+} from "react";
 import { lightTextures, tightTextures, calculateScale } from "@/lib/images";
 import { cn } from "@/lib/util";
 
@@ -91,63 +97,100 @@ export function Text({
     );
 }
 
-interface ClippedTextProps {
+export type Points = [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+];
+interface ClippedTextProps extends Omit<React.ComponentProps<"div">, "ref"> {
     children: React.ReactNode;
-    points: [number, number, number, number, number, number, number, number];
-    frontColor?: string;
-    backColor?: string;
+    points: Points;
+    fgColor?: string;
+    bgColor?: string;
     className?: string;
 }
 
-export function ClippedText({
-    children,
-    points,
-    frontColor = "white",
-    backColor = "red",
-    className,
-}: ClippedTextProps) {
-    const ref = useRef<HTMLDivElement>(null);
-    const [clipPath, setClipPath] = useState<string>("");
+export const ClippedText = React.forwardRef<HTMLDivElement, ClippedTextProps>(
+    (
+        {
+            children,
+            points,
+            fgColor = "white",
+            bgColor = "red",
+            className,
+            style,
+            ...props
+        },
+        ref
+    ) => {
+        const internalRef = useRef<HTMLDivElement>(null);
+        const [clipPath, setClipPath] = useState<string>("");
 
-    useEffect(() => {
-        if (ref.current) {
-            const [tlx, tly, trx, try_, brx, bry, blx, bly] = points;
-            const polygon = `${tlx * 100}% ${tly * 100}%, ${trx * 100}% ${
-                try_ * 100
-            }%, ${brx * 100}% ${bry * 100}%, ${blx * 100}% ${bly * 100}%`;
-            setClipPath(`polygon(${polygon})`);
-        }
-    }, [points]);
+        const setRefs = useCallback(
+            (node: HTMLDivElement | null) => {
+                internalRef.current = node;
+                if (ref) {
+                    if (typeof ref === "function") {
+                        ref(node);
+                    } else {
+                        ref.current = node;
+                    }
+                }
+            },
+            [ref]
+        );
 
-    return (
-        <div
-            ref={ref}
-            className={className}
-            style={{ position: "relative", display: "inline-block" }}
-        >
-            <Text
-                textColor={backColor}
+        useEffect(() => {
+            if (internalRef.current) {
+                const [tlx, tly, trx, try_, brx, bry, blx, bly] = points;
+                const polygon = `${tlx * 100}% ${tly * 100}%, ${trx * 100}% ${
+                    try_ * 100
+                }%, ${brx * 100}% ${bry * 100}%, ${blx * 100}% ${bly * 100}%`;
+                setClipPath(`polygon(${polygon})`);
+            }
+        }, [points]);
+
+        return (
+            <div
+                ref={setRefs}
+                className={className}
                 style={{
                     position: "relative",
-                    top: 0,
-                    left: 0,
-                    zIndex: 0,
+                    display: "inline-block",
+                    ...style,
                 }}
+                {...props}
             >
-                {children}
-            </Text>
-            <Text
-                textColor={frontColor}
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    zIndex: 1,
-                    clipPath,
-                }}
-            >
-                {children}
-            </Text>
-        </div>
-    );
-}
+                <Text
+                    textColor={bgColor}
+                    style={{
+                        position: "relative",
+                        top: 0,
+                        left: 0,
+                        zIndex: 0,
+                    }}
+                >
+                    {children}
+                </Text>
+                <Text
+                    textColor={fgColor}
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        zIndex: 1,
+                        clipPath,
+                    }}
+                >
+                    {children}
+                </Text>
+            </div>
+        );
+    }
+);
+ClippedText.displayName = "ClippedText";

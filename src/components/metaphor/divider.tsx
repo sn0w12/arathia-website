@@ -4,12 +4,14 @@ import { cn } from "@/lib/util";
 
 interface DividerProps {
     scale?: { x: number; y: number };
+    color?: string;
     orientation?: "horizontal" | "vertical";
     className?: string;
 }
 
 export function Divider({
     className,
+    color = "white",
     scale = { x: 1.2, y: 1 },
     orientation = "horizontal",
 }: DividerProps) {
@@ -22,6 +24,7 @@ export function Divider({
         >
             <ImageBbox
                 images={lines}
+                color={color}
                 interval={200}
                 isHovered={true}
                 index={0}

@@ -107,7 +107,7 @@ export default function Home() {
                                 href={link.href}
                                 className="text-5xl font-normal"
                                 selected={selected === index + 1}
-                                textureType="light"
+                                textureType="tight"
                                 onHover={(ref) =>
                                     handleHover(
                                         index + 1,

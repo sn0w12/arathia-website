@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import { NoiseFade } from "@/components/metaphor/noise-fade";
 import { ImageInfo } from "@/lib/images";
 import { randomBetween } from "@/lib/util";
@@ -39,18 +40,26 @@ export const Cloud: React.FC<CloudProps> = ({
             duration={1000}
             className="absolute"
         >
-            <div
-                className={`cloud-${direction} relative`}
+            <motion.div
+                className="relative"
                 style={{
                     backgroundImage: `url(${image.url})`,
                     backgroundSize: `${image.size[0]}px ${image.size[1]}px`,
                     backgroundPosition: `-${image.bbox[0]}px -${image.bbox[1]}px`,
                     width: `${image.bbox[2]}px`,
                     height: `${image.bbox[3]}px`,
-                    left: `${x}px`,
-                    top: `${y}px`,
-                    animationDuration: `${speed}s`,
-                    scale: `${scaleValue}%`,
+                }}
+                initial={{ x, y, scale: scaleValue / 100 }}
+                animate={{
+                    x:
+                        direction === "left"
+                            ? x - (window.innerWidth + image.bbox[2])
+                            : x + (window.innerWidth + image.bbox[2]),
+                }}
+                transition={{
+                    duration: speed,
+                    repeat: Infinity,
+                    ease: "linear",
                 }}
             />
         </NoiseFade>

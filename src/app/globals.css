@@ -3,8 +3,15 @@
 :root {
     --background: #f5f1ea;
     --foreground: #290d00;
-    --accent: #b7965b;
+    --accent: oklch(67.376% 0.10541 82.831);
     --accent-foreground: #efdbb9;
+
+    --solar: var(--accent);
+    --void: oklch(46.714% 0.17428 283.272);
+    --arc: oklch(64.226% 0.09254 223.366);
+    --vampiric: oklch(54.616% 0.14917 12.518);
+    --soulseeker: oklch(53.042% 0.18146 311.837);
+    --dragon: oklch(58.744% 0.11736 40.635);
 }
 
 @theme inline {
@@ -14,6 +21,13 @@
     --color-accent-foreground: var(--accent-foreground);
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
+
+    --color-solar: var(--solar);
+    --color-void: var(--void);
+    --color-arc: var(--arc);
+    --color-vampiric: var(--vampiric);
+    --color-soulseeker: var(--soulseeker);
+    --color-dragon: var(--dragon);
 }
 
 @media (prefers-color-scheme: dark) {
