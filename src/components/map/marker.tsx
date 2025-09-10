@@ -133,7 +133,6 @@ export function CustomMarker({
                                 }`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:color-accent"
                             >
                                 {popupTitle}
                             </Link>

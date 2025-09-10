@@ -117,5 +117,8 @@ body {
 }
 
 .leaflet-container a {
-    color: transparent !important;
+    color: var(--accent) !important;
+}
+.leaflet-container a:hover {
+    color: var(--accent-foreground) !important;
 }
