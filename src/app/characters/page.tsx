@@ -5,7 +5,7 @@ import { NoiseFade } from "@/components/metaphor/noise-fade";
 import { useTransition } from "@/contexts/transition-context";
 
 import { AnimatedBackground } from "@/components/metaphor/animated-bg";
-import { Text, ClippedText, Points } from "@/components/metaphor/text";
+import { Text, ClippedText } from "@/components/metaphor/text";
 import { Divider } from "@/components/metaphor/divider";
 import { Circle } from "@/components/metaphor/circle";
 import { TransitionLink } from "@/components/transition-link";
