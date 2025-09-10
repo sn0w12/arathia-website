@@ -47,7 +47,7 @@ export default function Home() {
         navigate(href);
     };
 
-    useKeyboardNavigation({
+    const isUsingController = useKeyboardNavigation({
         selected,
         setSelected,
         maxIndex,
@@ -73,6 +73,7 @@ export default function Home() {
             scale={scale}
             duration={duration}
             className="fixed inset-0 h-screen"
+            style={{ cursor: isUsingController ? "none" : "auto" }}
         >
             <Image
                 src={BackgroundBg}

@@ -18,6 +18,7 @@ export function NoiseFade({
     duration = 1000,
     className,
     scale = 1,
+    style,
     ...props
 }: NoiseFadeProps) {
     const [animationStage, setAnimationStage] =
@@ -249,6 +250,7 @@ export function NoiseFade({
                             ? `url(#noiseMaskIn-${animationId})`
                             : `url(#noiseMaskOut-${animationId})`,
                     opacity: animationStage !== "hidden" ? 1 : 0,
+                    ...style,
                 }}
                 className={className}
                 {...props}
