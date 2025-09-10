@@ -119,7 +119,6 @@ export function CustomMarker({
         return null;
     }
 
-    console.log(popupTitle);
     return (
         <Marker position={position} icon={icon} {...props}>
             <Popup className="leaflet-bg font-[juana]">
