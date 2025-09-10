@@ -1,20 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
 interface UseKeyboardNavigationProps {
-    selected: number;
-    setSelected: (index: number) => void;
-    maxIndex: number;
-    minIndex?: number;
-    onHover: (index: number) => void;
+    onUp: () => void;
+    onDown: () => void;
+    onLeft: () => void;
+    onRight: () => void;
     onEnter: () => void;
 }
 
 export function useKeyboardNavigation({
-    selected,
-    setSelected,
-    maxIndex,
-    minIndex = 0,
-    onHover,
+    onUp,
+    onDown,
+    onLeft,
+    onRight,
     onEnter,
 }: UseKeyboardNavigationProps) {
     const prevGamepadState = useRef<{ [key: string]: boolean }>({});
@@ -23,6 +21,10 @@ export function useKeyboardNavigation({
     const lastTriggerDown = useRef<number>(0);
     const initialTriggerUp = useRef<number>(0);
     const initialTriggerDown = useRef<number>(0);
+    const lastTriggerLeft = useRef<number>(0);
+    const lastTriggerRight = useRef<number>(0);
+    const initialTriggerLeft = useRef<number>(0);
+    const initialTriggerRight = useRef<number>(0);
     const [isUsingController, setIsUsingController] = useState(() => {
         if (typeof window !== "undefined") {
             const stored = sessionStorage.getItem("isUsingController");
@@ -37,16 +39,21 @@ export function useKeyboardNavigation({
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             setIsUsingController(false);
-            if (e.key === "ArrowUp" && selected > minIndex) {
-                const newSelected = selected - 1;
-                setSelected(newSelected);
-                onHover(newSelected);
-            } else if (e.key === "ArrowDown" && selected < maxIndex) {
-                const newSelected = selected + 1;
-                setSelected(newSelected);
-                onHover(newSelected);
+            if (e.key === "ArrowUp") {
+                e.preventDefault();
+                onUp();
+            } else if (e.key === "ArrowDown") {
+                e.preventDefault();
+                onDown();
             } else if (e.key === "Enter") {
+                e.preventDefault();
                 onEnter();
+            } else if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                onLeft();
+            } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                onRight();
             }
         };
 
@@ -60,22 +67,14 @@ export function useKeyboardNavigation({
                     if (gamepad.buttons[12]?.pressed) {
                         setIsUsingController(true);
                         if (!prevGamepadState.current["buttonUp"]) {
-                            if (selected > minIndex) {
-                                const newSelected = selected - 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onUp();
                             initialTriggerUp.current = now;
                             lastTriggerUp.current = now;
                         } else if (
                             now - initialTriggerUp.current > INITIAL_DELAY &&
                             now - lastTriggerUp.current > REPEAT_INTERVAL
                         ) {
-                            if (selected > minIndex) {
-                                const newSelected = selected - 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onUp();
                             lastTriggerUp.current = now;
                         }
                         prevGamepadState.current["buttonUp"] = true;
@@ -87,22 +86,14 @@ export function useKeyboardNavigation({
                     if (gamepad.axes[1] < -0.5) {
                         setIsUsingController(true);
                         if (!prevGamepadState.current["axisUp"]) {
-                            if (selected > minIndex) {
-                                const newSelected = selected - 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onUp();
                             initialTriggerUp.current = now;
                             lastTriggerUp.current = now;
                         } else if (
                             now - initialTriggerUp.current > INITIAL_DELAY &&
                             now - lastTriggerUp.current > REPEAT_INTERVAL
                         ) {
-                            if (selected > minIndex) {
-                                const newSelected = selected - 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onUp();
                             lastTriggerUp.current = now;
                         }
                         prevGamepadState.current["axisUp"] = true;
@@ -114,22 +105,14 @@ export function useKeyboardNavigation({
                     if (gamepad.buttons[13]?.pressed) {
                         setIsUsingController(true);
                         if (!prevGamepadState.current["buttonDown"]) {
-                            if (selected < maxIndex) {
-                                const newSelected = selected + 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onDown();
                             initialTriggerDown.current = now;
                             lastTriggerDown.current = now;
                         } else if (
                             now - initialTriggerDown.current > INITIAL_DELAY &&
                             now - lastTriggerDown.current > REPEAT_INTERVAL
                         ) {
-                            if (selected < maxIndex) {
-                                const newSelected = selected + 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onDown();
                             lastTriggerDown.current = now;
                         }
                         prevGamepadState.current["buttonDown"] = true;
@@ -141,22 +124,14 @@ export function useKeyboardNavigation({
                     if (gamepad.axes[1] > 0.5) {
                         setIsUsingController(true);
                         if (!prevGamepadState.current["axisDown"]) {
-                            if (selected < maxIndex) {
-                                const newSelected = selected + 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onDown();
                             initialTriggerDown.current = now;
                             lastTriggerDown.current = now;
                         } else if (
                             now - initialTriggerDown.current > INITIAL_DELAY &&
                             now - lastTriggerDown.current > REPEAT_INTERVAL
                         ) {
-                            if (selected < maxIndex) {
-                                const newSelected = selected + 1;
-                                setSelected(newSelected);
-                                onHover(newSelected);
-                            }
+                            onDown();
                             lastTriggerDown.current = now;
                         }
                         prevGamepadState.current["axisDown"] = true;
@@ -175,6 +150,82 @@ export function useKeyboardNavigation({
                     } else if (!gamepad.buttons[0].pressed) {
                         prevGamepadState.current["a"] = false;
                     }
+
+                    // D-pad left (button 14)
+                    if (gamepad.buttons[14]?.pressed) {
+                        setIsUsingController(true);
+                        if (!prevGamepadState.current["buttonLeft"]) {
+                            onLeft();
+                            initialTriggerLeft.current = now;
+                            lastTriggerLeft.current = now;
+                        } else if (
+                            now - initialTriggerLeft.current > INITIAL_DELAY &&
+                            now - lastTriggerLeft.current > REPEAT_INTERVAL
+                        ) {
+                            onLeft();
+                            lastTriggerLeft.current = now;
+                        }
+                        prevGamepadState.current["buttonLeft"] = true;
+                    } else {
+                        prevGamepadState.current["buttonLeft"] = false;
+                    }
+
+                    // Joystick left (axis 0 negative)
+                    if (gamepad.axes[0] < -0.5) {
+                        setIsUsingController(true);
+                        if (!prevGamepadState.current["axisLeft"]) {
+                            onLeft();
+                            initialTriggerLeft.current = now;
+                            lastTriggerLeft.current = now;
+                        } else if (
+                            now - initialTriggerLeft.current > INITIAL_DELAY &&
+                            now - lastTriggerLeft.current > REPEAT_INTERVAL
+                        ) {
+                            onLeft();
+                            lastTriggerLeft.current = now;
+                        }
+                        prevGamepadState.current["axisLeft"] = true;
+                    } else {
+                        prevGamepadState.current["axisLeft"] = false;
+                    }
+
+                    // D-pad right (button 15)
+                    if (gamepad.buttons[15]?.pressed) {
+                        setIsUsingController(true);
+                        if (!prevGamepadState.current["buttonRight"]) {
+                            onRight();
+                            initialTriggerRight.current = now;
+                            lastTriggerRight.current = now;
+                        } else if (
+                            now - initialTriggerRight.current > INITIAL_DELAY &&
+                            now - lastTriggerRight.current > REPEAT_INTERVAL
+                        ) {
+                            onRight();
+                            lastTriggerRight.current = now;
+                        }
+                        prevGamepadState.current["buttonRight"] = true;
+                    } else {
+                        prevGamepadState.current["buttonRight"] = false;
+                    }
+
+                    // Joystick right (axis 0 positive)
+                    if (gamepad.axes[0] > 0.5) {
+                        setIsUsingController(true);
+                        if (!prevGamepadState.current["axisRight"]) {
+                            onRight();
+                            initialTriggerRight.current = now;
+                            lastTriggerRight.current = now;
+                        } else if (
+                            now - initialTriggerRight.current > INITIAL_DELAY &&
+                            now - lastTriggerRight.current > REPEAT_INTERVAL
+                        ) {
+                            onRight();
+                            lastTriggerRight.current = now;
+                        }
+                        prevGamepadState.current["axisRight"] = true;
+                    } else {
+                        prevGamepadState.current["axisRight"] = false;
+                    }
                 }
             }
             animationFrameId.current = requestAnimationFrame(handleGamepad);
@@ -189,7 +240,7 @@ export function useKeyboardNavigation({
                 cancelAnimationFrame(animationFrameId.current);
             }
         };
-    }, [selected, setSelected, maxIndex, minIndex, onHover, onEnter]);
+    }, [onUp, onDown, onLeft, onRight, onEnter]);
 
     useEffect(() => {
         sessionStorage.setItem(

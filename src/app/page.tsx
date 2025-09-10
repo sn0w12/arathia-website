@@ -27,7 +27,7 @@ export default function Home() {
         () => [
             { text: "Wiki", href: "https://arathia.net/wiki" },
             { text: "Map", href: "/map" },
-            { text: "Timeline", href: "https://arathia.net/timeline" },
+            { text: "Timeline", href: "/timeline" },
             { text: "Characters", href: "/characters" },
         ],
         []
@@ -48,16 +48,32 @@ export default function Home() {
     };
 
     const isUsingController = useKeyboardNavigation({
-        selected,
-        setSelected,
-        maxIndex,
-        onHover: (index) =>
-            handleHover(
-                index,
-                linkRefs.current[index],
-                setDroplets,
-                setSelected
-            ),
+        onUp: () => {
+            if (selected > 0) {
+                const newIndex = selected - 1;
+                setSelected(newIndex);
+                handleHover(
+                    newIndex,
+                    linkRefs.current[newIndex],
+                    setDroplets,
+                    setSelected
+                );
+            }
+        },
+        onDown: () => {
+            if (selected < maxIndex) {
+                const newIndex = selected + 1;
+                setSelected(newIndex);
+                handleHover(
+                    newIndex,
+                    linkRefs.current[newIndex],
+                    setDroplets,
+                    setSelected
+                );
+            }
+        },
+        onLeft: () => {},
+        onRight: () => {},
         onEnter: handleEnter,
     });
 

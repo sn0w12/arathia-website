@@ -214,16 +214,32 @@ export default function CharactersPage() {
     };
 
     const isUsingController = useKeyboardNavigation({
-        selected,
-        setSelected,
-        maxIndex,
-        onHover: (index) =>
-            handleHover(
-                index,
-                charRefs.current[index],
-                setDroplets,
-                setSelected
-            ),
+        onUp: () => {
+            if (selected > 0) {
+                const newIndex = selected - 1;
+                setSelected(newIndex);
+                handleHover(
+                    newIndex,
+                    charRefs.current[newIndex],
+                    setDroplets,
+                    setSelected
+                );
+            }
+        },
+        onDown: () => {
+            if (selected < maxIndex) {
+                const newIndex = selected + 1;
+                setSelected(newIndex);
+                handleHover(
+                    newIndex,
+                    charRefs.current[newIndex],
+                    setDroplets,
+                    setSelected
+                );
+            }
+        },
+        onLeft: () => {},
+        onRight: () => {},
         onEnter: handleEnter,
     });
 
