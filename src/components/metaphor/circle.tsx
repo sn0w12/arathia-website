@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-import xxSmallCircle from "../../../public/circles/xxSmallCircle.webp";
-import xSmallCircle from "../../../public/circles/xSmallCircle.webp";
-import smallCircle from "../../../public/circles/smallCircle.webp";
-import mediumCircle from "../../../public/circles/mediumCircle.webp";
-import largeCircle from "../../../public/circles/largeCircle.webp";
+import xxSmallCircle from "../../../public/textures/circles/xxSmallCircle.webp";
+import xSmallCircle from "../../../public/textures/circles/xSmallCircle.webp";
+import smallCircle from "../../../public/textures/circles/smallCircle.webp";
+import mediumCircle from "../../../public/textures/circles/mediumCircle.webp";
+import largeCircle from "../../../public/textures/circles/largeCircle.webp";
 
 interface CircleProps {
     size?: "2xs" | "xs" | "sm" | "md" | "lg";
