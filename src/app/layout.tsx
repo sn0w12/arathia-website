@@ -6,17 +6,17 @@ import { TransitionProvider } from "@/contexts/transition-context";
 const juana = localFont({
     src: [
         {
-            path: "../fonts/juana-black.otf",
+            path: "../fonts/juana-black.ttf",
             weight: "900",
             style: "normal",
         },
         {
-            path: "../fonts/juana-bold.otf",
+            path: "../fonts/juana-bold.ttf",
             weight: "700",
             style: "normal",
         },
         {
-            path: "../fonts/juana-regular.otf",
+            path: "../fonts/juana-regular.ttf",
             weight: "400",
             style: "normal",
         },
