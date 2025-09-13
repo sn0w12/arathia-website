@@ -1,3 +1,5 @@
+import { RegionId, regionMap } from "./regions";
+
 export const mapCodes = ["ar", "ar1213BR", "mo", "el"] as const;
 export type MapCode = (typeof mapCodes)[number];
 
@@ -23,7 +25,7 @@ export const typeNames: Record<LayerType, string> = {
 };
 
 interface MapConfig {
-    id: string;
+    id: MapCode;
     url: string;
     backgroundUrl: string;
     minZoom: number;
@@ -85,3 +87,19 @@ export const mapConfigs: Record<string, MapConfig> = {
         bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
 };
+
+export const idToConfig: Record<MapCode, MapConfig> = Object.values(
+    mapConfigs
+).reduce((acc, config) => {
+    acc[config.id] = config;
+    return acc;
+}, {} as Record<MapCode, MapConfig>);
+
+export const configToName = new Map(
+    Object.entries(mapConfigs).map(([key, config]) => [config, key])
+);
+
+export function getMarkerRegion(markerId: string): RegionId | null {
+    const regionId = markerId.split("_")[0];
+    return regionId in regionMap ? (regionId as RegionId) : null;
+}

@@ -29,7 +29,7 @@ interface RegionInfo {
     };
 }
 
-export const regionMap: Record<string, RegionInfo> = {
+export const regionMap = {
     an: {
         mapId: "ar",
         name: "Holy Antarian Empire",
@@ -120,4 +120,6 @@ export const regionMap: Record<string, RegionInfo> = {
         name: "Scientia",
         flag: { img: ScFlag, alt: "Scientian Flag" },
     },
-};
+} as const satisfies Record<string, RegionInfo>;
+
+export type RegionId = keyof typeof regionMap;

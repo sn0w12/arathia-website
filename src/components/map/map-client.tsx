@@ -16,12 +16,16 @@ import { CustomZoomControl } from "./custom-zoom-control";
 import { DevMarker } from "./dev-marker";
 import { countryPolygons } from "@/lib/map/country-polygons";
 import {
+    configToName,
+    getMarkerRegion,
+    idToConfig,
     layerTypes,
     MapCode,
     mapCodes,
     mapConfigs,
     typeNames,
 } from "@/lib/map";
+import { RegionId, regionMap } from "@/lib/map/regions";
 
 const MIN_ZOOM = 2.8;
 const MAX_ZOOM = 5.4;
@@ -58,19 +62,85 @@ function BaseLayerChangeHandler({
     return null;
 }
 
-function ZoomResetter({ currentMap }: { currentMap: string }) {
+function ZoomResetter({
+    currentMap,
+    initialMarkerId,
+}: {
+    currentMap: string;
+    initialMarkerId: string | null;
+}) {
     const map = useMap();
     useEffect(() => {
+        // Don't reset zoom if there's an initial marker to zoom to
+        if (initialMarkerId) return;
+
         map.setView([0, 0], 0);
         setTimeout(() => {
             map.setView([0, 0], MIN_ZOOM);
         }, 20);
+    }, [currentMap, map, initialMarkerId]);
+    return null;
+}
+
+function BoundsUpdater({ currentMap }: { currentMap: string }) {
+    const map = useMap();
+    useEffect(() => {
+        const currentConfig = mapConfigs[currentMap];
+        if (currentConfig) {
+            const bounds = L.latLngBounds(
+                L.latLng(
+                    currentConfig.bounds.southWest[0],
+                    currentConfig.bounds.southWest[1]
+                ),
+                L.latLng(
+                    currentConfig.bounds.northEast[0],
+                    currentConfig.bounds.northEast[1]
+                )
+            );
+            map.setMaxBounds(bounds);
+        }
     }, [currentMap, map]);
     return null;
 }
 
+function InitialMarkerHandler({
+    initialMarkerId,
+    markers,
+    currentMap,
+    setCurrentMap,
+}: {
+    initialMarkerId: string | null;
+    markers: Marker[];
+    currentMap: string;
+    setCurrentMap: (map: string) => void;
+}) {
+    const map = useMap();
+    const hasHandledInitialMarker = useRef(false);
+
+    useEffect(() => {
+        if (!initialMarkerId || hasHandledInitialMarker.current) return;
+
+        const marker = markers.find((m) => m.id === initialMarkerId);
+        if (!marker) return;
+
+        hasHandledInitialMarker.current = true;
+
+        const initialRegion = getMarkerRegion(initialMarkerId);
+        if (!initialRegion) return;
+
+        const initialMapConfig = idToConfig[regionMap[initialRegion].mapId];
+        const initialMapName = configToName.get(initialMapConfig);
+        setCurrentMap(initialMapName || "Arathia");
+        setTimeout(() => {
+            map.flyTo(marker.coordinates, 4, { duration: 1 });
+        }, 100);
+    }, [initialMarkerId, markers, map, currentMap, setCurrentMap]);
+
+    return null;
+}
+
 export interface Marker {
-    id: string;
+    id: `${RegionId}_${string}`;
     mapId: MapCode;
     coordinates: [number, number];
     icon: MarkerType;
@@ -187,10 +257,21 @@ const YearSelector: React.FC<YearSelectorProps> = ({
     return null;
 };
 
-export default function MapClient() {
+export default function MapClient({
+    initialMap = "Arathia",
+    initialMarkerId = null,
+}: {
+    initialMap?: string;
+    initialMarkerId?: string | null;
+}) {
     const markers: Marker[] = jsonMarkers as unknown as Marker[];
 
-    const [currentMap, setCurrentMap] = useState("Arathia");
+    const validMaps = Object.keys(mapConfigs);
+    const validatedInitialMap = validMaps.includes(initialMap)
+        ? initialMap
+        : "Arathia";
+
+    const [currentMap, setCurrentMap] = useState(validatedInitialMap);
 
     const baseTileLayerRef = useRef<L.TileLayer | null>(null);
     const backgroundTileLayerRef = useRef<L.TileLayer | null>(null);
@@ -223,17 +304,6 @@ export default function MapClient() {
         setCurrentMap(name);
     };
 
-    const bounds = L.latLngBounds(
-        L.latLng(
-            currentConfig.bounds.southWest[0],
-            currentConfig.bounds.southWest[1]
-        ),
-        L.latLng(
-            currentConfig.bounds.northEast[0],
-            currentConfig.bounds.northEast[1]
-        )
-    );
-
     return (
         <div style={{ height: "100vh", width: "100%" }}>
             <MapContainer
@@ -248,22 +318,38 @@ export default function MapClient() {
                 style={{ height: "100%", width: "100%" }}
                 zoomControl={false}
                 attributionControl={false}
-                maxBounds={bounds}
             >
                 <MapResizer />
                 <BaseLayerChangeHandler onChange={handleBaseLayerChange} />
+                <BoundsUpdater currentMap={currentMap} />
                 <CustomZoomControl />
-                <ZoomResetter currentMap={currentMap} />
+                <ZoomResetter
+                    currentMap={currentMap}
+                    initialMarkerId={initialMarkerId}
+                />
+                <InitialMarkerHandler
+                    initialMarkerId={initialMarkerId}
+                    markers={markers}
+                    currentMap={currentMap}
+                    setCurrentMap={setCurrentMap}
+                />
                 {/* Background TileLayer */}
                 <TileLayer
                     ref={backgroundTileLayerRef}
-                    url={mapConfigs.Arathia.backgroundUrl}
+                    url={mapConfigs[currentMap].backgroundUrl}
                     pane="backgroundPane"
                 />
                 {/* Layers Control */}
                 <LayersControl ref={layersControlRef} position="topright">
                     {/* Base Layers */}
-                    <LayersControl.BaseLayer checked name="Arathia">
+                    <LayersControl.BaseLayer
+                        checked={
+                            configToName.get(
+                                idToConfig[currentMap as MapCode]
+                            ) === "Arathia"
+                        }
+                        name="Arathia"
+                    >
                         <TileLayer
                             ref={baseTileLayerRef}
                             url={mapConfigs.Arathia.url}
@@ -271,14 +357,20 @@ export default function MapClient() {
                             noWrap
                         />
                     </LayersControl.BaseLayer>
-                    <LayersControl.BaseLayer name="Morturia">
+                    <LayersControl.BaseLayer
+                        checked={currentMap === "Morturia"}
+                        name="Morturia"
+                    >
                         <TileLayer
                             url="/map/maps/morturia/{z}/{x}/{y}.webp"
                             pane="basePane"
                             noWrap
                         />
                     </LayersControl.BaseLayer>
-                    <LayersControl.BaseLayer name="Elysium">
+                    <LayersControl.BaseLayer
+                        checked={currentMap === "Elysium"}
+                        name="Elysium"
+                    >
                         <TileLayer
                             url="/map/maps/elysium/{z}/{x}/{y}.webp"
                             pane="basePane"
@@ -309,6 +401,10 @@ export default function MapClient() {
                                                 <CustomMarker
                                                     key={marker.id}
                                                     marker={marker}
+                                                    shouldOpenPopup={
+                                                        marker.id ===
+                                                        initialMarkerId
+                                                    }
                                                 />
                                             ))}
                                     </LayerGroup>

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useTransition } from "@/contexts/transition-context";
 import { NoiseFade } from "@/components/metaphor/noise-fade";
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 const MapClient = dynamic(() => import("@/components/map/map-client"), {
     ssr: false,
@@ -11,6 +12,11 @@ const MapClient = dynamic(() => import("@/components/map/map-client"), {
 
 export default function MapPage() {
     const { isOpen, setIsOpen, scale, duration } = useTransition();
+    const searchParams = useSearchParams();
+
+    const initialMap = searchParams.get("map") || "Arathia";
+    const initialMarkerId =
+        searchParams.get("markerid") || searchParams.get("markerId") || null;
 
     useEffect(() => {
         setIsOpen(false);
@@ -25,7 +31,10 @@ export default function MapPage() {
             duration={duration}
             className="fixed inset-0 h-screen"
         >
-            <MapClient />
+            <MapClient
+                initialMap={initialMap}
+                initialMarkerId={initialMarkerId}
+            />
         </NoiseFade>
     );
 }

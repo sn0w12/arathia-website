@@ -5,6 +5,9 @@ import { Text } from "../metaphor/text";
 import Link from "next/link";
 import Image from "next/image";
 import { regionMap } from "@/lib/map/regions";
+import { RegionId } from "@/lib/map/regions";
+import { useEffect, useRef } from "react";
+import { isDevelopment } from "@/lib/util";
 
 import Capital from "../../../public/map/markers/capital.png";
 import CityBig from "../../../public/map/markers/cityBig.png";
@@ -15,6 +18,7 @@ import Important from "../../../public/map/markers/important.png";
 import Character from "../../../public/map/markers/character.png";
 import DefaultShadow from "../../../public/map/markers/defaultShadow.png";
 import { Marker as MarkerInterface } from "./map-client";
+import { getMarkerRegion } from "@/lib/map";
 
 const defaultIconSettings = {
     size: [31, 41] as [number, number],
@@ -106,20 +110,49 @@ export type MarkerType = keyof typeof icons;
 
 interface CustomMarkerProps {
     marker: MarkerInterface;
+    shouldOpenPopup?: boolean;
+    popupDelay?: number;
     [key: string]: unknown;
 }
 
-export function CustomMarker({ marker, ...props }: CustomMarkerProps) {
+export function CustomMarker({
+    marker,
+    shouldOpenPopup = false,
+    popupDelay = 100,
+    ...props
+}: CustomMarkerProps) {
+    const markerRef = useRef<L.Marker | null>(null);
+
+    useEffect(() => {
+        if (shouldOpenPopup && markerRef.current) {
+            setTimeout(() => {
+                if (markerRef.current) {
+                    markerRef.current.openPopup();
+                }
+            }, popupDelay);
+        }
+    }, [shouldOpenPopup, popupDelay]);
+
     const icon = icons[marker.icon];
     if (!icon) {
         console.warn(`Icon type "${marker.icon}" not found. Using default.`);
         return null;
     }
-    const regionId = marker.id.split("_")[0];
+    const regionId = getMarkerRegion(marker.id);
+    if (!regionId) {
+        console.warn(`Region for marker ID "${marker.id}" not found.`);
+        return null;
+    }
+
     const region = regionMap[regionId];
 
     return (
-        <Marker position={marker.coordinates} icon={icon} {...props}>
+        <Marker
+            ref={markerRef}
+            position={marker.coordinates}
+            icon={icon}
+            {...props}
+        >
             <Popup className="leaflet-bg font-[juana]">
                 <div className="flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center w-full gap-2">
@@ -147,6 +180,9 @@ export function CustomMarker({ marker, ...props }: CustomMarkerProps) {
                             className="h-5 w-auto"
                         />
                     </div>
+                    {isDevelopment && (
+                        <p className="text-sm text-center">ID: {marker.id}</p>
+                    )}
                     <Divider className="h-0.5 w-[90%] -mt-1" />
                     <p className="my-1! text-lg text-center">
                         {marker.category}
