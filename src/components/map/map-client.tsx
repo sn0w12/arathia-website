@@ -52,9 +52,8 @@ const mapConfigs: Record<
     }
 > = {
     Arathia: {
-        url: "https://www.arathia.net/maps/Main/arathia/{z}/{x}/{y}.png",
-        backgroundUrl:
-            "https://www.arathia.net/maps/Main/arathiaBackground/{z}/{x}/{y}.png",
+        url: "/map/maps/arathia/{z}/{x}/{y}.webp",
+        backgroundUrl: "/map/maps/arathiaBackground/{z}/{x}/{y}.webp",
         minZoom: 2.75,
         maxZoom: 5.4,
         overlays: ["ar"],
@@ -62,9 +61,8 @@ const mapConfigs: Record<
         bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     "Arathia Clean": {
-        url: "https://www.arathia.net/maps/Main/arathiaClean/{z}/{x}/{y}.png",
-        backgroundUrl:
-            "https://www.arathia.net/maps/Main/arathiaBackground/{z}/{x}/{y}.png",
+        url: "/map/maps/arathiaClean/{z}/{x}/{y}.webp",
+        backgroundUrl: "/map/maps/arathiaBackground/{z}/{x}/{y}.webp",
         minZoom: 2.75,
         maxZoom: 5.4,
         overlays: ["ar"],
@@ -72,9 +70,8 @@ const mapConfigs: Record<
         bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     "Arathia 1213 B.R": {
-        url: "https://www.arathia.net/maps/Main/arathia1213BR/{z}/{x}/{y}.png",
-        backgroundUrl:
-            "https://www.arathia.net/maps/Main/arathiaBackground/{z}/{x}/{y}.png",
+        url: "/map/maps/arathia1213BR/{z}/{x}/{y}.webp",
+        backgroundUrl: "/map/maps/arathiaBackground/{z}/{x}/{y}.webp",
         minZoom: 2.75,
         maxZoom: 5.4,
         overlays: ["ar1213BR"],
@@ -82,9 +79,8 @@ const mapConfigs: Record<
         bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     Morturia: {
-        url: "https://www.arathia.net/maps/Main/morturia/{z}/{x}/{y}.png",
-        backgroundUrl:
-            "https://www.arathia.net/maps/Main/morturiaBackground/{z}/{x}/{y}.png",
+        url: "/map/maps/morturia/{z}/{x}/{y}.webp",
+        backgroundUrl: "/map/maps/morturiaBackground/{z}/{x}/{y}.webp",
         minZoom: 2.75,
         maxZoom: 5.4,
         overlays: ["mo"],
@@ -92,9 +88,8 @@ const mapConfigs: Record<
         bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     Elysium: {
-        url: "https://www.arathia.net/maps/Main/elysium/{z}/{x}/{y}.png",
-        backgroundUrl:
-            "https://www.arathia.net/maps/Main/elysiumBackground/{z}/{x}/{y}.png",
+        url: "/map/maps/elysium/{z}/{x}/{y}.webp",
+        backgroundUrl: "/map/maps/elysiumBackground/{z}/{x}/{y}.webp",
         minZoom: 2.5,
         maxZoom: 5.4,
         overlays: ["el"],
@@ -351,14 +346,14 @@ export default function MapClient() {
                     </LayersControl.BaseLayer>
                     <LayersControl.BaseLayer name="Morturia">
                         <TileLayer
-                            url="https://www.arathia.net/maps/Main/morturia/{z}/{x}/{y}.png"
+                            url="/map/maps/morturia/{z}/{x}/{y}.webp"
                             pane="basePane"
                             noWrap
                         />
                     </LayersControl.BaseLayer>
                     <LayersControl.BaseLayer name="Elysium">
                         <TileLayer
-                            url="https://www.arathia.net/maps/Main/elysium/{z}/{x}/{y}.png"
+                            url="/map/maps/elysium/{z}/{x}/{y}.webp"
                             pane="basePane"
                             noWrap
                         />
