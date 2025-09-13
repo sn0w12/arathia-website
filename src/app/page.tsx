@@ -13,7 +13,7 @@ import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
 
 import BackgroundBg from "../../public/bg/home-background-background.webp";
 import BackgroundMid from "../../public/bg/home-background-midground.webp";
-import SonsOfAntares from "../../public/logos/Sons_of_antares.png";
+import SonsOfAntares from "../../public/logos/groups/Sons_of_antares.png";
 import { handleHover } from "@/lib/util";
 import { Sky } from "@/components/metaphor/map/sky";
 
