@@ -14,6 +14,9 @@ import { CustomMarker, MarkerType } from "./marker";
 import jsonMarkers from "../../../public/data/markers/markers.json";
 import { CustomZoomControl } from "./custom-zoom-control";
 
+const MIN_ZOOM = 2.8;
+const MAX_ZOOM = 5.4;
+
 // Define region codes and layer types (from your map.ts)
 const regionCodes = ["ar", "ar1213BR", "mo", "el"] as const;
 const layerTypes = [
@@ -45,6 +48,7 @@ const mapConfigs: Record<
         maxZoom: number;
         overlays: string[];
         variants: string[];
+        bounds: { southWest: [number, number]; northEast: [number, number] };
     }
 > = {
     Arathia: {
@@ -55,6 +59,7 @@ const mapConfigs: Record<
         maxZoom: 5.4,
         overlays: ["ar"],
         variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
+        bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     "Arathia Clean": {
         url: "https://www.arathia.net/maps/Main/arathiaClean/{z}/{x}/{y}.png",
@@ -64,6 +69,7 @@ const mapConfigs: Record<
         maxZoom: 5.4,
         overlays: ["ar"],
         variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
+        bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     "Arathia 1213 B.R": {
         url: "https://www.arathia.net/maps/Main/arathia1213BR/{z}/{x}/{y}.png",
@@ -73,6 +79,7 @@ const mapConfigs: Record<
         maxZoom: 5.4,
         overlays: ["ar1213BR"],
         variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
+        bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     Morturia: {
         url: "https://www.arathia.net/maps/Main/morturia/{z}/{x}/{y}.png",
@@ -82,6 +89,7 @@ const mapConfigs: Record<
         maxZoom: 5.4,
         overlays: ["mo"],
         variants: ["Morturia"],
+        bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
     Elysium: {
         url: "https://www.arathia.net/maps/Main/elysium/{z}/{x}/{y}.png",
@@ -91,6 +99,7 @@ const mapConfigs: Record<
         maxZoom: 5.4,
         overlays: ["el"],
         variants: ["Elysium"],
+        bounds: { southWest: [-70, -170], northEast: [70, 170] },
     },
 };
 
@@ -123,6 +132,17 @@ function BaseLayerChangeHandler({
             map.off("baselayerchange", handleBaseLayerChange);
         };
     }, [map, onChange]);
+    return null;
+}
+
+function ZoomResetter({ currentMap }: { currentMap: string }) {
+    const map = useMap();
+    useEffect(() => {
+        map.setView([0, 0], 0);
+        setTimeout(() => {
+            map.setView([0, 0], MIN_ZOOM);
+        }, 20);
+    }, [currentMap, map]);
     return null;
 }
 
@@ -281,21 +301,37 @@ export default function MapClient() {
         setCurrentMap(name);
     };
 
+    const bounds = L.latLngBounds(
+        L.latLng(
+            currentConfig.bounds.southWest[0],
+            currentConfig.bounds.southWest[1]
+        ),
+        L.latLng(
+            currentConfig.bounds.northEast[0],
+            currentConfig.bounds.northEast[1]
+        )
+    );
+
     return (
         <div style={{ height: "100vh", width: "100%" }}>
             <MapContainer
                 center={[0, 0]}
-                zoom={0}
-                minZoom={2.5}
-                maxZoom={5.4}
+                zoom={MIN_ZOOM}
+                zoomSnap={0.1}
+                zoomDelta={0.5}
+                minZoom={MIN_ZOOM}
+                maxZoom={MAX_ZOOM}
                 scrollWheelZoom={true}
+                wheelPxPerZoomLevel={120}
                 style={{ height: "100%", width: "100%" }}
                 zoomControl={false}
                 attributionControl={false}
+                maxBounds={bounds}
             >
                 <MapResizer />
                 <BaseLayerChangeHandler onChange={handleBaseLayerChange} />
                 <CustomZoomControl />
+                <ZoomResetter currentMap={currentMap} />
                 {/* Background TileLayer */}
                 <TileLayer
                     ref={backgroundTileLayerRef}
@@ -310,18 +346,21 @@ export default function MapClient() {
                             ref={baseTileLayerRef}
                             url={mapConfigs.Arathia.url}
                             pane="basePane"
+                            noWrap
                         />
                     </LayersControl.BaseLayer>
                     <LayersControl.BaseLayer name="Morturia">
                         <TileLayer
                             url="https://www.arathia.net/maps/Main/morturia/{z}/{x}/{y}.png"
                             pane="basePane"
+                            noWrap
                         />
                     </LayersControl.BaseLayer>
                     <LayersControl.BaseLayer name="Elysium">
                         <TileLayer
                             url="https://www.arathia.net/maps/Main/elysium/{z}/{x}/{y}.png"
                             pane="basePane"
+                            noWrap
                         />
                     </LayersControl.BaseLayer>
                     {/* Overlays */}
