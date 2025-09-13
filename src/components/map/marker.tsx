@@ -5,7 +5,6 @@ import { Text } from "../metaphor/text";
 import Link from "next/link";
 import Image from "next/image";
 import { regionMap } from "@/lib/map/regions";
-import { RegionId } from "@/lib/map/regions";
 import { useEffect, useRef } from "react";
 import { isDevelopment } from "@/lib/util";
 

@@ -4,7 +4,7 @@ import L, { LeafletEvent } from "leaflet";
 import { isDevelopment } from "../../lib/util";
 import { countryPolygons } from "@/lib/map/country-polygons";
 import { point, booleanPointInPolygon } from "@turf/turf";
-import { regionMap } from "@/lib/map/regions";
+import { RegionId, regionMap } from "@/lib/map/regions";
 import { MapCode } from "@/lib/map";
 import { MarkerType } from "./marker";
 import { Marker as MarkerInterface } from "./map-client";
@@ -78,7 +78,7 @@ export function DevMarker({ currentMap, countryPolygons }: DevMarkerProps) {
     const handleCreateMarker = () => {
         const icon = categoryToIcon[markerDraft.category] || "capital";
         const markerData: MarkerInterface = {
-            id: `${country}_${markerDraft.title
+            id: `${country as RegionId}_${markerDraft.title
                 .toLowerCase()
                 .replace(/\s+/g, "-")}`,
             mapId: currentMap as MapCode,
@@ -126,7 +126,9 @@ export function DevMarker({ currentMap, countryPolygons }: DevMarkerProps) {
                     </p>
                     <p style={{ margin: 0 }}>
                         Country:{" "}
-                        {regionMap[country]?.name || country || "Unknown"}
+                        {regionMap[country as RegionId]?.name ||
+                            country ||
+                            "Unknown"}
                     </p>
                     <div style={{ textAlign: "left", marginTop: "10px" }}>
                         <label>

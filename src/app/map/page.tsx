@@ -3,14 +3,14 @@
 import dynamic from "next/dynamic";
 import { useTransition } from "@/contexts/transition-context";
 import { NoiseFade } from "@/components/metaphor/noise-fade";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const MapClient = dynamic(() => import("@/components/map/map-client"), {
     ssr: false,
 });
 
-export default function MapPage() {
+function MapContent() {
     const { isOpen, setIsOpen, scale, duration } = useTransition();
     const searchParams = useSearchParams();
 
@@ -36,5 +36,13 @@ export default function MapPage() {
                 initialMarkerId={initialMarkerId}
             />
         </NoiseFade>
+    );
+}
+
+export default function MapPage() {
+    return (
+        <Suspense fallback={<div className="bg-background" />}>
+            <MapContent />
+        </Suspense>
     );
 }

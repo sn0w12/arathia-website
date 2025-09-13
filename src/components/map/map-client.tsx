@@ -70,9 +70,13 @@ function ZoomResetter({
     initialMarkerId: string | null;
 }) {
     const map = useMap();
+    const hasSkippedInitialReset = useRef(false);
+
     useEffect(() => {
-        // Don't reset zoom if there's an initial marker to zoom to
-        if (initialMarkerId) return;
+        if (initialMarkerId && !hasSkippedInitialReset.current) {
+            hasSkippedInitialReset.current = true;
+            return;
+        }
 
         map.setView([0, 0], 0);
         setTimeout(() => {
@@ -343,11 +347,9 @@ export default function MapClient({
                 <LayersControl ref={layersControlRef} position="topright">
                     {/* Base Layers */}
                     <LayersControl.BaseLayer
-                        checked={
-                            configToName.get(
-                                idToConfig[currentMap as MapCode]
-                            ) === "Arathia"
-                        }
+                        checked={["ar", "ar1213BR"].includes(
+                            mapConfigs[currentMap]?.id
+                        )}
                         name="Arathia"
                     >
                         <TileLayer
@@ -358,7 +360,7 @@ export default function MapClient({
                         />
                     </LayersControl.BaseLayer>
                     <LayersControl.BaseLayer
-                        checked={currentMap === "Morturia"}
+                        checked={mapConfigs[currentMap]?.id === "mo"}
                         name="Morturia"
                     >
                         <TileLayer
@@ -368,7 +370,7 @@ export default function MapClient({
                         />
                     </LayersControl.BaseLayer>
                     <LayersControl.BaseLayer
-                        checked={currentMap === "Elysium"}
+                        checked={mapConfigs[currentMap]?.id === "el"}
                         name="Elysium"
                     >
                         <TileLayer
