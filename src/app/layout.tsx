@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { TransitionProvider } from "@/contexts/transition-context";
+import { isDevelopment } from "@/lib/util";
 
 const juana = localFont({
     src: [
@@ -32,8 +33,6 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const isDevelopment = process.env.NODE_ENV === "development";
-
     return (
         <html lang="en" suppressHydrationWarning>
             <head>

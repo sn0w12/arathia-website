@@ -2,6 +2,8 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { playSound } from "./audio";
 
+export const isDevelopment = process.env.NODE_ENV === "development";
+
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }

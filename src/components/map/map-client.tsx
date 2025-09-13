@@ -13,90 +13,18 @@ import "leaflet/dist/leaflet.css";
 import { CustomMarker, MarkerType } from "./marker";
 import jsonMarkers from "../../../public/data/markers/markers.json";
 import { CustomZoomControl } from "./custom-zoom-control";
+import { DevMarker } from "./dev-marker";
+import { countryPolygons } from "@/lib/map/country-polygons";
+import {
+    layerTypes,
+    MapCode,
+    mapCodes,
+    mapConfigs,
+    typeNames,
+} from "@/lib/map";
 
 const MIN_ZOOM = 2.8;
 const MAX_ZOOM = 5.4;
-
-// Define region codes and layer types (from your map.ts)
-const regionCodes = ["ar", "ar1213BR", "mo", "el"] as const;
-const layerTypes = [
-    "capital",
-    "cityBig",
-    "citySmall",
-    "town",
-    "nature",
-    "important",
-    "character",
-] as const;
-
-const typeNames: Record<string, string> = {
-    capital: "Capitals",
-    cityBig: "Large Cities",
-    citySmall: "Small Cities",
-    town: "Towns",
-    nature: "Nature",
-    important: "Locations",
-    character: "Characters",
-};
-
-const mapConfigs: Record<
-    string,
-    {
-        url: string;
-        backgroundUrl: string;
-        minZoom: number;
-        maxZoom: number;
-        overlays: string[];
-        variants: string[];
-        bounds: { southWest: [number, number]; northEast: [number, number] };
-    }
-> = {
-    Arathia: {
-        url: "/map/maps/arathia/{z}/{x}/{y}.webp",
-        backgroundUrl: "/map/maps/arathiaBackground/{z}/{x}/{y}.webp",
-        minZoom: 2.75,
-        maxZoom: 5.4,
-        overlays: ["ar"],
-        variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
-        bounds: { southWest: [-70, -170], northEast: [70, 170] },
-    },
-    "Arathia Clean": {
-        url: "/map/maps/arathiaClean/{z}/{x}/{y}.webp",
-        backgroundUrl: "/map/maps/arathiaBackground/{z}/{x}/{y}.webp",
-        minZoom: 2.75,
-        maxZoom: 5.4,
-        overlays: ["ar"],
-        variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
-        bounds: { southWest: [-70, -170], northEast: [70, 170] },
-    },
-    "Arathia 1213 B.R": {
-        url: "/map/maps/arathia1213BR/{z}/{x}/{y}.webp",
-        backgroundUrl: "/map/maps/arathiaBackground/{z}/{x}/{y}.webp",
-        minZoom: 2.75,
-        maxZoom: 5.4,
-        overlays: ["ar1213BR"],
-        variants: ["Arathia", "Arathia Clean", "Arathia 1213 B.R"],
-        bounds: { southWest: [-70, -170], northEast: [70, 170] },
-    },
-    Morturia: {
-        url: "/map/maps/morturia/{z}/{x}/{y}.webp",
-        backgroundUrl: "/map/maps/morturiaBackground/{z}/{x}/{y}.webp",
-        minZoom: 2.75,
-        maxZoom: 5.4,
-        overlays: ["mo"],
-        variants: ["Morturia"],
-        bounds: { southWest: [-70, -170], northEast: [70, 170] },
-    },
-    Elysium: {
-        url: "/map/maps/elysium/{z}/{x}/{y}.webp",
-        backgroundUrl: "/map/maps/elysiumBackground/{z}/{x}/{y}.webp",
-        minZoom: 2.5,
-        maxZoom: 5.4,
-        overlays: ["el"],
-        variants: ["Elysium"],
-        bounds: { southWest: [-70, -170], northEast: [70, 170] },
-    },
-};
 
 function MapResizer() {
     const map = useMap();
@@ -141,14 +69,13 @@ function ZoomResetter({ currentMap }: { currentMap: string }) {
     return null;
 }
 
-interface Marker {
+export interface Marker {
     id: string;
-    region: (typeof regionCodes)[number];
+    mapId: MapCode;
     coordinates: [number, number];
     icon: MarkerType;
     title: string;
     description: string;
-    popuptitle: string;
     category: string;
     link: boolean;
     customlink: string | null;
@@ -280,7 +207,7 @@ export default function MapClient() {
         }
     }, [currentMap]);
 
-    const overlayConfigs = regionCodes.flatMap((region) =>
+    const overlayConfigs = mapCodes.flatMap((region) =>
         layerTypes.map((type) => ({
             region,
             type,
@@ -375,30 +302,13 @@ export default function MapClient() {
                                         {markers
                                             .filter(
                                                 (m) =>
-                                                    m.region ===
-                                                        config.region &&
+                                                    m.mapId === config.region &&
                                                     m.icon === config.type
                                             )
                                             .map((marker) => (
                                                 <CustomMarker
                                                     key={marker.id}
-                                                    type={
-                                                        config.type as MarkerType
-                                                    }
-                                                    position={
-                                                        marker.coordinates
-                                                    }
-                                                    popupTitle={
-                                                        marker.popuptitle
-                                                    }
-                                                    description={
-                                                        marker.description
-                                                    }
-                                                    link={marker.link}
-                                                    customLink={
-                                                        marker.customlink
-                                                    }
-                                                    category={marker.category}
+                                                    marker={marker}
                                                 />
                                             ))}
                                     </LayerGroup>
@@ -412,6 +322,10 @@ export default function MapClient() {
                     currentMap={currentMap}
                     onChange={setCurrentMap}
                     layersControlRef={layersControlRef}
+                />
+                <DevMarker
+                    currentMap={currentMap}
+                    countryPolygons={countryPolygons}
                 />
             </MapContainer>
         </div>

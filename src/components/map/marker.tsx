@@ -3,6 +3,8 @@ import { Marker, Popup } from "react-leaflet";
 import { Divider } from "../metaphor/divider";
 import { Text } from "../metaphor/text";
 import Link from "next/link";
+import Image from "next/image";
+import { regionMap } from "@/lib/map/regions";
 
 import Capital from "../../../public/map/markers/capital.png";
 import CityBig from "../../../public/map/markers/cityBig.png";
@@ -12,6 +14,7 @@ import Nature from "../../../public/map/markers/nature.png";
 import Important from "../../../public/map/markers/important.png";
 import Character from "../../../public/map/markers/character.png";
 import DefaultShadow from "../../../public/map/markers/defaultShadow.png";
+import { Marker as MarkerInterface } from "./map-client";
 
 const defaultIconSettings = {
     size: [31, 41] as [number, number],
@@ -102,56 +105,56 @@ const icons = {
 export type MarkerType = keyof typeof icons;
 
 interface CustomMarkerProps {
-    type: MarkerType;
-    position: [number, number];
-    popupTitle: string;
-    description: string;
-    link: boolean;
-    customLink: string | null;
-    category: string;
+    marker: MarkerInterface;
     [key: string]: unknown;
 }
 
-export function CustomMarker({
-    type,
-    position,
-    popupTitle,
-    description,
-    link,
-    customLink,
-    category,
-    ...props
-}: CustomMarkerProps) {
-    const icon = icons[type];
+export function CustomMarker({ marker, ...props }: CustomMarkerProps) {
+    const icon = icons[marker.icon];
     if (!icon) {
-        console.warn(`Icon type "${type}" not found. Using default.`);
+        console.warn(`Icon type "${marker.icon}" not found. Using default.`);
         return null;
     }
+    const regionId = marker.id.split("_")[0];
+    const region = regionMap[regionId];
 
     return (
-        <Marker position={position} icon={icon} {...props}>
+        <Marker position={marker.coordinates} icon={icon} {...props}>
             <Popup className="leaflet-bg font-[juana]">
                 <div className="flex flex-col items-center justify-center">
-                    <Text className="text-2xl font-bold w-full text-center">
-                        {link ? (
-                            <Link
-                                href={`https://arathia.net/wiki/${
-                                    customLink ||
-                                    popupTitle.replace(/\s+/g, "_")
-                                }`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {popupTitle}
-                            </Link>
-                        ) : (
-                            popupTitle
-                        )}
-                    </Text>
+                    <div className="flex items-center justify-center w-full gap-2">
+                        <Text className="text-2xl font-bold text-center">
+                            {marker.link ? (
+                                <Link
+                                    href={`https://arathia.net/wiki/${
+                                        marker.customlink ||
+                                        marker.title.replace(/\s+/g, "_")
+                                    }`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {marker.title}
+                                </Link>
+                            ) : (
+                                marker.title
+                            )}
+                        </Text>
+                        <Image
+                            src={region.flag.img}
+                            alt={region.flag.alt}
+                            blurDataURL={region.flag.img.blurDataURL}
+                            width={33}
+                            className="h-5 w-auto"
+                        />
+                    </div>
                     <Divider className="h-0.5 w-[90%] -mt-1" />
-                    <p className="my-1! text-lg text-center">{category}</p>
+                    <p className="my-1! text-lg text-center">
+                        {marker.category}
+                    </p>
                     <Divider className="h-0.5 w-40 -mt-2" />
-                    <p className="my-1! text-md text-center">{description}</p>
+                    <p className="my-1! text-md text-center">
+                        {marker.description}
+                    </p>
                 </div>
             </Popup>
         </Marker>
