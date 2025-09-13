@@ -113,6 +113,7 @@ function CharacterHead({
                             src={powerIcons[power] as StaticImageData}
                             alt={power}
                             className="z-10 relative"
+                            width={200}
                         />
                         <div className="center-absolute invert">
                             <AnimatedBackground
@@ -132,6 +133,9 @@ function CharacterHead({
                 src={character.image}
                 alt={character.name}
                 className="absolute bottom-0 w-1/2 right-0"
+                loading="eager"
+                sizes="(max-width: 767px) 100vw, 150vw"
+                quality={100}
             />
             {character.title && (
                 <div
@@ -262,6 +266,8 @@ export default function CharactersPage() {
                 alt="Background"
                 className="absolute inset-0 h-full w-full object-cover"
                 quality={100}
+                sizes="100vw"
+                priority
             />
             <div className="fixed text-6xl font-black top-17.5 left-39 z-10">
                 <AnimatedBackground

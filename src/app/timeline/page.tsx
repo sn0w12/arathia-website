@@ -164,6 +164,8 @@ export default function TimelinePage() {
                 alt="Background"
                 className="absolute inset-0 h-full w-full object-cover"
                 quality={100}
+                sizes="100vw"
+                priority
             />
             <div className="absolute left-1/2 -translate-x-1/2 top-10">
                 <div className="fixed text-6xl font-black top-1.5 left-1 z-10 pointer-events-auto">

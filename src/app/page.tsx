@@ -95,12 +95,16 @@ export default function Home() {
                 src={BackgroundBg}
                 alt="Background"
                 className="absolute inset-0 h-full w-full object-cover"
+                sizes="100vw"
+                priority
             />
             <Sky numClouds={10} />
             <Image
                 src={BackgroundMid}
                 alt="Background"
                 className="absolute inset-0 h-full w-full object-cover"
+                sizes="100vw"
+                priority
             />
             <div className="relative block mx-auto mt-40 md:left-40 md:top-40 md:mt-0 md:inline-block">
                 <div className="flex flex-col items-center md:flex-row gap-8">
@@ -140,6 +144,7 @@ export default function Home() {
                         src={SonsOfAntares}
                         alt="Sons of Antares"
                         className="h-auto w-40 md:h-88 md:w-auto"
+                        width={167}
                     />
                 </div>
                 {droplets.map((d) => (
