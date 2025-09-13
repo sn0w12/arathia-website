@@ -4,6 +4,15 @@ import { Divider } from "../metaphor/divider";
 import { Text } from "../metaphor/text";
 import Link from "next/link";
 
+import Capital from "../../../public/map/markers/capital.png";
+import CityBig from "../../../public/map/markers/cityBig.png";
+import CitySmall from "../../../public/map/markers/citySmall.png";
+import Town from "../../../public/map/markers/town.png";
+import Nature from "../../../public/map/markers/nature.png";
+import Important from "../../../public/map/markers/important.png";
+import Character from "../../../public/map/markers/character.png";
+import DefaultShadow from "../../../public/map/markers/defaultShadow.png";
+
 const defaultIconSettings = {
     size: [31, 41] as [number, number],
     anchor: [15, 41] as [number, number],
@@ -12,9 +21,9 @@ const defaultIconSettings = {
 
 const icons = {
     capital: L.icon({
-        iconUrl: "/map/markers/capital.png",
-        iconRetinaUrl: "/map/markers/capital.png",
-        shadowUrl: "/map/markers/defaultShadow.png",
+        iconUrl: Capital.src,
+        iconRetinaUrl: Capital.src,
+        shadowUrl: DefaultShadow.src,
         iconSize: defaultIconSettings.size,
         iconAnchor: defaultIconSettings.anchor,
         popupAnchor: defaultIconSettings.popupAnchor,
@@ -23,9 +32,9 @@ const icons = {
         className: "capital",
     }),
     cityBig: L.icon({
-        iconUrl: "/map/markers/cityBig.png",
-        iconRetinaUrl: "/map/markers/cityBig.png",
-        shadowUrl: "/map/markers/defaultShadow.png",
+        iconUrl: CityBig.src,
+        iconRetinaUrl: CityBig.src,
+        shadowUrl: DefaultShadow.src,
         iconSize: defaultIconSettings.size,
         iconAnchor: defaultIconSettings.anchor,
         popupAnchor: defaultIconSettings.popupAnchor,
@@ -34,9 +43,9 @@ const icons = {
         className: "cityBig",
     }),
     citySmall: L.icon({
-        iconUrl: "/map/markers/citySmall.png",
-        iconRetinaUrl: "/map/markers/citySmall.png",
-        shadowUrl: "/map/markers/defaultShadow.png",
+        iconUrl: CitySmall.src,
+        iconRetinaUrl: CitySmall.src,
+        shadowUrl: DefaultShadow.src,
         iconSize: defaultIconSettings.size,
         iconAnchor: defaultIconSettings.anchor,
         popupAnchor: defaultIconSettings.popupAnchor,
@@ -45,9 +54,9 @@ const icons = {
         className: "citySmall",
     }),
     town: L.icon({
-        iconUrl: "/map/markers/town.png",
-        iconRetinaUrl: "/map/markers/town.png",
-        shadowUrl: "/map/markers/defaultShadow.png",
+        iconUrl: Town.src,
+        iconRetinaUrl: Town.src,
+        shadowUrl: DefaultShadow.src,
         iconSize: defaultIconSettings.size,
         iconAnchor: defaultIconSettings.anchor,
         popupAnchor: defaultIconSettings.popupAnchor,
@@ -56,9 +65,9 @@ const icons = {
         className: "town",
     }),
     nature: L.icon({
-        iconUrl: "/map/markers/nature.png",
-        iconRetinaUrl: "/map/markers/nature.png",
-        shadowUrl: "/map/markers/defaultShadow.png",
+        iconUrl: Nature.src,
+        iconRetinaUrl: Nature.src,
+        shadowUrl: DefaultShadow.src,
         iconSize: defaultIconSettings.size,
         iconAnchor: defaultIconSettings.anchor,
         popupAnchor: defaultIconSettings.popupAnchor,
@@ -67,9 +76,9 @@ const icons = {
         className: "nature",
     }),
     important: L.icon({
-        iconUrl: "/map/markers/important.png",
-        iconRetinaUrl: "/map/markers/important.png",
-        shadowUrl: "/map/markers/defaultShadow.png",
+        iconUrl: Important.src,
+        iconRetinaUrl: Important.src,
+        shadowUrl: DefaultShadow.src,
         iconSize: defaultIconSettings.size,
         iconAnchor: defaultIconSettings.anchor,
         popupAnchor: defaultIconSettings.popupAnchor,
@@ -78,9 +87,9 @@ const icons = {
         className: "important",
     }),
     character: L.icon({
-        iconUrl: "/map/markers/character.png",
-        iconRetinaUrl: "/map/markers/character.png",
-        shadowUrl: "/map/markers/defaultShadow.png",
+        iconUrl: Character.src,
+        iconRetinaUrl: Character.src,
+        shadowUrl: DefaultShadow.src,
         iconSize: defaultIconSettings.size,
         iconAnchor: defaultIconSettings.anchor,
         popupAnchor: defaultIconSettings.popupAnchor,
