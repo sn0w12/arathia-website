@@ -1,7 +1,6 @@
 import L from "leaflet";
 import { Marker, Popup } from "react-leaflet";
 import { Divider } from "../metaphor/divider";
-import { Text } from "../metaphor/text";
 import Link from "next/link";
 import Image from "next/image";
 import { regionMap } from "@/lib/map/regions";
@@ -155,7 +154,7 @@ export function CustomMarker({
             <Popup className="leaflet-bg font-[juana]">
                 <div className="flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center w-full gap-2">
-                        <Text className="text-2xl font-bold text-center">
+                        <span className="text-2xl font-bold text-center">
                             {marker.link ? (
                                 <Link
                                     href={`https://arathia.net/wiki/${
@@ -170,7 +169,7 @@ export function CustomMarker({
                             ) : (
                                 marker.title
                             )}
-                        </Text>
+                        </span>
                         <Image
                             src={region.flag.img}
                             alt={region.flag.alt}
