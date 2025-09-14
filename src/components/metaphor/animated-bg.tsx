@@ -20,10 +20,10 @@ import {
 
 const activeSprites = new Set<number>();
 
-type Range = { min: number; max: number };
-type NumberOrRange = number | Range;
+export type Range = { min: number; max: number };
+export type NumberOrRange = number | Range;
 
-type Scale = NumberOrRange | { x: NumberOrRange; y: NumberOrRange };
+export type Scale = NumberOrRange | { x: NumberOrRange; y: NumberOrRange };
 
 function resolveScale(scale: Scale): { x: number; y: number } {
     if (typeof scale === "number") {
@@ -216,22 +216,7 @@ export const AnimatedBackground = forwardRef<
 );
 AnimatedBackground.displayName = "AnimatedBackground";
 
-const ImageBboxComponent = function ImageBbox({
-    images,
-    interval,
-    isHovered,
-    index,
-    total,
-    scale = 1.2,
-    className,
-    color = "white",
-    fitMode = "default",
-    rotation = 0,
-    showChance = 1,
-    align = "center",
-    offset = 0,
-    animateScale = true,
-}: {
+export interface ImageBboxProps {
     images: ImageInfo[];
     interval: number;
     isHovered: boolean;
@@ -246,7 +231,25 @@ const ImageBboxComponent = function ImageBbox({
     align?: "center" | "left" | "right";
     offset?: NumberOrRange;
     animateScale?: boolean;
-}) {
+}
+
+const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
+    const {
+        images,
+        interval,
+        isHovered,
+        index,
+        total,
+        scale = 1.2,
+        className,
+        color = "white",
+        fitMode = "default",
+        rotation = 0,
+        showChance = 1,
+        align = "center",
+        offset = 0,
+        animateScale = true,
+    } = props;
     const randomImage = useCallback((images: ImageInfo[]) => {
         return images[Math.floor(Math.random() * images.length)];
     }, []);

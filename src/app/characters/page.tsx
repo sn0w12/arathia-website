@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useMemo } from "react";
+import { motion } from "framer-motion";
 import { NoiseFade } from "@/components/metaphor/noise-fade";
 import { useTransition } from "@/contexts/transition-context";
 
@@ -15,6 +16,7 @@ import { playSound } from "@/lib/audio";
 import { useNavigation } from "@/hooks/use-navigation";
 import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
 import { handleHover } from "@/lib/util";
+import { TabSystem, useTabAnimation } from "@/components/metaphor/tabs";
 
 import Background from "../../../public/bg/characters-background.webp";
 import Ianara from "../../../public/characters/lanara.webp";
@@ -57,17 +59,47 @@ function CharacterText({
     ref: React.RefObject<HTMLDivElement | null>;
     onHover: (ref: React.RefObject<HTMLDivElement | null>) => void;
 }) {
+    const tabAnimation = useTabAnimation();
+
+    const itemVariants = {
+        enter: {
+            x: tabAnimation.direction > 0 ? "100%" : "-100%",
+            opacity: 0,
+        },
+        center: {
+            x: 0,
+            opacity: 1,
+        },
+        exit: {
+            x: tabAnimation.direction < 0 ? "100%" : "-100%",
+            opacity: 0,
+        },
+    };
+
     return (
-        <AnimatedBackground
-            ref={ref}
-            hovered={hovered}
-            style={{ left: `calc(var(--spacing) * ${index * 4})` }}
-            onHover={onHover}
+        <motion.div
+            variants={itemVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+                duration: 0.3,
+                ease: "easeInOut",
+                delay: index * (tabAnimation.staggerDelay / 1000),
+            }}
+            className="item"
         >
-            <Text className="text-5xl font-bold">
-                <TransitionLink href={href}>{name}</TransitionLink>
-            </Text>
-        </AnimatedBackground>
+            <AnimatedBackground
+                ref={ref}
+                hovered={hovered}
+                style={{ left: `calc(var(--spacing) * ${index * 4})` }}
+                onHover={onHover}
+            >
+                <span className="text-5xl font-bold">
+                    <TransitionLink href={href}>{name}</TransitionLink>
+                </span>
+            </AnimatedBackground>
+        </motion.div>
     );
 }
 
@@ -168,6 +200,7 @@ export default function CharactersPage() {
     const [droplets, setDroplets] = useState<
         Array<{ id: number; x: number; y: number }>
     >([]);
+    const [currentTab, setCurrentTab] = useState<number>(0);
     const characters = useMemo<Character[]>(
         () => [
             {
@@ -194,49 +227,86 @@ export default function CharactersPage() {
         []
     );
 
+    const charactersPerPage = 2;
+    const tabCount = Math.ceil(characters.length / charactersPerPage);
+    const maxInTab = characters.slice(
+        currentTab * charactersPerPage,
+        (currentTab + 1) * charactersPerPage
+    ).length;
+    const currentCharIndex = currentTab * charactersPerPage + selected - 1;
+
     useEffect(() => {
-        if (selected !== currentSelected) {
+        if (currentCharIndex !== currentSelected) {
             setFadeIn(false);
             const timer = setTimeout(() => {
-                setCurrentSelected(selected);
+                setCurrentSelected(currentCharIndex);
                 setFadeIn(true);
             }, 500);
             return () => clearTimeout(timer);
         }
-    }, [selected, currentSelected]);
+    }, [currentCharIndex, currentSelected]);
 
     const charRefs = useRef<Array<React.RefObject<HTMLDivElement | null>>>(
-        Array.from({ length: characters.length + 1 }, () => ({ current: null }))
+        Array.from({ length: characters.length + 1 }, () => ({
+            current: null,
+        }))
     );
     const { navigate } = useNavigation();
-    const maxIndex = characters.length;
 
     const handleEnter = () => {
-        const href = selected === 0 ? "/" : characters[selected - 1].href;
+        const href =
+            selected === 0
+                ? "/"
+                : characters[currentTab * charactersPerPage + selected - 1]
+                      .href;
         playSound("1.mp3");
         navigate(href);
     };
 
     const isUsingController = useKeyboardNavigation({
         onUp: () => {
-            if (selected > 0) {
+            if (selected > 1) {
                 const newIndex = selected - 1;
                 setSelected(newIndex);
+                const globalIndex = currentTab * charactersPerPage + newIndex;
                 handleHover(
-                    newIndex,
-                    charRefs.current[newIndex],
+                    globalIndex,
+                    charRefs.current[globalIndex],
                     setDroplets,
                     setSelected
                 );
+            } else if (selected === 1) {
+                setSelected(0);
+                handleHover(0, charRefs.current[0], setDroplets, setSelected);
             }
         },
         onDown: () => {
-            if (selected < maxIndex) {
+            if (selected === 0) {
+                setSelected(1);
+                const globalIndex = currentTab * charactersPerPage + 1;
+                handleHover(
+                    globalIndex,
+                    charRefs.current[globalIndex],
+                    setDroplets,
+                    setSelected
+                );
+            } else if (selected < maxInTab) {
                 const newIndex = selected + 1;
                 setSelected(newIndex);
+                const globalIndex = currentTab * charactersPerPage + newIndex;
                 handleHover(
-                    newIndex,
-                    charRefs.current[newIndex],
+                    globalIndex,
+                    charRefs.current[globalIndex],
+                    setDroplets,
+                    setSelected
+                );
+            } else if (currentTab < tabCount - 1) {
+                setCurrentTab(currentTab + 1);
+                setSelected(1);
+                const globalIndex = (currentTab + 1) * charactersPerPage + 1;
+                handleHover(
+                    globalIndex,
+                    charRefs.current[globalIndex],
                     setDroplets,
                     setSelected
                 );
@@ -299,24 +369,59 @@ export default function CharactersPage() {
                     </ClippedText>
                 </div>
                 <div className="relative left-10 flex flex-col">
-                    {characters.map((char, index) => (
-                        <CharacterText
-                            key={char.href}
-                            ref={charRefs.current[index + 1]}
-                            name={char.name}
-                            href={char.href}
-                            hovered={selected === index + 1}
-                            index={index}
-                            onHover={(ref) =>
-                                handleHover(
-                                    index + 1,
-                                    ref,
-                                    setDroplets,
-                                    setSelected
-                                )
-                            }
-                        />
-                    ))}
+                    <TabSystem
+                        tabCount={tabCount}
+                        labelFormatter={(i) => `${i + 1}`}
+                        options={{
+                            onTabChange: (activeIndex) => {
+                                setCurrentTab(activeIndex);
+                                setSelected(1);
+                            },
+                        }}
+                    >
+                        {Array.from({ length: tabCount }, (_, tabIndex) => {
+                            const start = tabIndex * charactersPerPage;
+                            const end = Math.min(
+                                start + charactersPerPage,
+                                characters.length
+                            );
+                            const group = characters.slice(start, end);
+                            return (
+                                <div key={tabIndex}>
+                                    {group.map((char, index) => {
+                                        const globalIndex = start + index + 1;
+                                        return (
+                                            <CharacterText
+                                                key={char.href}
+                                                ref={
+                                                    charRefs.current[
+                                                        globalIndex
+                                                    ]
+                                                }
+                                                name={char.name}
+                                                href={char.href}
+                                                hovered={
+                                                    selected === index + 1 &&
+                                                    currentTab === tabIndex
+                                                }
+                                                index={start + index}
+                                                onHover={(ref) => {
+                                                    setSelected(index + 1);
+                                                    setCurrentTab(tabIndex);
+                                                    handleHover(
+                                                        globalIndex,
+                                                        ref,
+                                                        setDroplets,
+                                                        setSelected
+                                                    );
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            );
+                        })}
+                    </TabSystem>
                 </div>
                 {droplets.map((d) => (
                     <Droplet
@@ -343,7 +448,7 @@ export default function CharactersPage() {
                         <CharacterHead
                             key={char.name}
                             character={char}
-                            visible={index === currentSelected - 1}
+                            visible={index === currentSelected}
                         />
                     ))}
                 </NoiseFade>
