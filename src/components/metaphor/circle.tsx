@@ -43,11 +43,7 @@ export function Circle({ size = "sm", className, spinDuration }: CircleProps) {
                     : {}
             }
         >
-            <Image
-                src={imageSrc}
-                alt={`Circle ${size}`}
-                blurDataURL={imageSrc.blurDataURL}
-            />
+            <Image src={imageSrc} alt={`Circle ${size}`} />
         </motion.div>
     );
 }

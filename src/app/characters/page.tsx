@@ -98,7 +98,6 @@ function CharacterHead({
         <div className={`${visible ? "opacity-100" : "opacity-0"}`}>
             {character.powers.map((power, index) => {
                 const color = `var(--${power.toLowerCase()})`;
-                const powerIcon = powerIcons[power] as StaticImageData;
                 return powerIcons[power] ? (
                     <div
                         key={`${power}-${index}`}
@@ -111,11 +110,10 @@ function CharacterHead({
                         }}
                     >
                         <Image
-                            src={powerIcon}
+                            src={powerIcons[power] as StaticImageData}
                             alt={power}
                             className="z-10 relative"
                             width={200}
-                            blurDataURL={powerIcon.blurDataURL}
                         />
                         <div className="center-absolute invert">
                             <AnimatedBackground
@@ -270,7 +268,6 @@ export default function CharactersPage() {
                 quality={100}
                 sizes="100vw"
                 priority
-                blurDataURL={Background.blurDataURL}
             />
             <div className="fixed text-6xl font-black top-17.5 left-39 z-10">
                 <AnimatedBackground

@@ -97,7 +97,6 @@ export default function Home() {
                 className="absolute inset-0 h-full w-full object-cover"
                 sizes="100vw"
                 priority
-                blurDataURL={BackgroundBg.blurDataURL}
             />
             <Sky numClouds={10} />
             <Image
@@ -106,7 +105,6 @@ export default function Home() {
                 className="absolute inset-0 h-full w-full object-cover"
                 sizes="100vw"
                 priority
-                blurDataURL={BackgroundMid.blurDataURL}
             />
             <div className="relative block mx-auto mt-40 md:left-40 md:top-40 md:mt-0 md:inline-block">
                 <div className="flex flex-col items-center md:flex-row gap-8">
@@ -147,7 +145,6 @@ export default function Home() {
                         alt="Sons of Antares"
                         className="h-auto w-40 md:h-88 md:w-auto"
                         width={167}
-                        blurDataURL={SonsOfAntares.blurDataURL}
                     />
                 </div>
                 {droplets.map((d) => (
