@@ -434,38 +434,40 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
     return (
         <div
             ref={ref}
-            className={isShowing ? className : `${className} opacity-0!`}
-            style={{
-                position: "absolute",
-                pointerEvents: "none",
-                top: "50%",
-                left: `calc(${leftPercent}% + ${currentOffset}%)`,
-                width: w,
-                height: h,
-                backgroundColor: color,
-                maskImage: `url(${currentImage.url})`,
-                maskSize: `${imageWidth}px ${imageHeight}px`,
-                maskPosition: `-${x}px -${y}px`,
-                maskRepeat: "no-repeat",
-                WebkitMaskImage: `url(${currentImage.url})`,
-                WebkitMaskSize: `${imageWidth}px ${imageHeight}px`,
-                WebkitMaskPosition: `-${x}px -${y}px`,
-                WebkitMaskRepeat: "no-repeat",
-                transform: `translate(${translateXPercent}%, -50%) scale(${
-                    internalScale.x * (animateScale ? animationMultiplier : 1)
-                }, ${
-                    internalScale.y * (animateScale ? animationMultiplier : 1)
-                }) rotate(${currentRotation}deg)`,
-                willChange: "transform, opacity",
-                transformOrigin:
-                    align === "left"
-                        ? "left center"
-                        : align === "right"
-                        ? "right center"
-                        : "center",
-                zIndex: 0,
-                transition: transition,
-            }}
+            className={cn(
+                "mask-styles",
+                isShowing ? className : `${className} opacity-0!`
+            )}
+            style={
+                {
+                    position: "absolute",
+                    pointerEvents: "none",
+                    top: "50%",
+                    left: `calc(${leftPercent}% + ${currentOffset}%)`,
+                    width: w,
+                    height: h,
+                    backgroundColor: color,
+                    transform: `translate(${translateXPercent}%, -50%) scale(${
+                        internalScale.x *
+                        (animateScale ? animationMultiplier : 1)
+                    }, ${
+                        internalScale.y *
+                        (animateScale ? animationMultiplier : 1)
+                    }) rotate(${currentRotation}deg)`,
+                    willChange: "transform, opacity",
+                    transformOrigin:
+                        align === "left"
+                            ? "left center"
+                            : align === "right"
+                            ? "right center"
+                            : "center",
+                    zIndex: 0,
+                    transition: transition,
+                    "--mask-url": `url(${currentImage.url})`,
+                    "--mask-size": `${imageWidth}px ${imageHeight}px`,
+                    "--mask-position": `-${x}px -${y}px`,
+                } as React.CSSProperties
+            }
         />
     );
 };

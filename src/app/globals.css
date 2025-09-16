@@ -95,6 +95,17 @@
     animation: moveRight linear infinite;
 }
 
+.mask-styles {
+    mask-image: var(--mask-url);
+    mask-size: var(--mask-size);
+    mask-position: var(--mask-position);
+    mask-repeat: no-repeat;
+    -webkit-mask-image: var(--mask-url);
+    -webkit-mask-size: var(--mask-size);
+    -webkit-mask-position: var(--mask-position);
+    -webkit-mask-repeat: no-repeat;
+}
+
 body {
     background: var(--background);
     color: var(--foreground);
