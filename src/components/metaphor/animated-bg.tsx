@@ -7,7 +7,7 @@ import {
     lines,
     smallImages,
 } from "@/lib/images";
-import { cn, isSafari } from "@/lib/util";
+import { cn } from "@/lib/util";
 import {
     forwardRef,
     memo,
