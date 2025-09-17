@@ -432,8 +432,6 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
     const translateXPercent =
         align === "left" ? 0 : align === "right" ? -100 : -50;
 
-    if (isSafari()) return null;
-
     return (
         <div
             ref={ref}
