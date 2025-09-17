@@ -11,7 +11,6 @@ import { playSound } from "@/lib/audio";
 import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
 import { CustomAnimatedBackground } from "./custom-animated-bg";
 import { lightTextures } from "@/lib/images";
-import { isSafari } from "@/lib/util";
 
 interface TabAnimationContext {
     isExiting: boolean;
@@ -65,7 +64,6 @@ export const TabSystem: React.FC<TabSystemProps> = ({
     children,
 }) => {
     const opts = useMemo(() => ({ ...defaultOptions, ...options }), [options]);
-    const isSafariValue = isSafari();
     const [currentTabIndex, setCurrentTabIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [direction, setDirection] = useState(0);
@@ -162,9 +160,7 @@ export const TabSystem: React.FC<TabSystemProps> = ({
                     >
                         <button
                             className={`w-6 text-3xl ${
-                                i === currentTabIndex && !isSafariValue
-                                    ? "text-background"
-                                    : ""
+                                i === currentTabIndex ? "text-background" : ""
                             } cursor-pointer ${opts.tabButtonClass}`}
                             onClick={() => switchTab(i)}
                             onMouseEnter={() => playSound("8.mp3", 0.2)}
