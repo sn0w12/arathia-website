@@ -69,39 +69,19 @@ export function Text({
     const [imageWidth, imageHeight] = texture.size;
 
     const internalStyle: React.CSSProperties = {
-        maskImage: `url(${texture.url})`,
-        WebkitMaskImage: `url(${texture.url})`,
-        maskSize: `${imageWidth * renderScale.x}px ${
-            imageHeight * renderScale.y
-        }px`,
-        WebkitMaskSize: `${imageWidth * renderScale.x}px ${
-            imageHeight * renderScale.y
-        }px`,
-        maskPosition: `-${x * renderScale.x}px -${y * renderScale.y}px`,
-        WebkitMaskPosition: `-${x * renderScale.x}px -${y * renderScale.y}px`,
-        maskRepeat: "no-repeat",
-        WebkitMaskRepeat: "no-repeat",
         color: textColor,
         ...style,
-    };
-
-    if (isSafari()) {
-        return (
-            <span
-                ref={ref}
-                className={cn("inline-block", className)}
-                style={{ color: textColor, ...style }}
-                {...props}
-            >
-                {children}
-            </span>
-        );
-    }
+        "--mask-url": `url(${texture.url})`,
+        "--mask-size": `${imageWidth * renderScale.x}px ${
+            imageHeight * renderScale.y
+        }px`,
+        "--mask-position": `-${x * renderScale.x}px -${y * renderScale.y}px`,
+    } as React.CSSProperties;
 
     return (
         <span
             ref={ref}
-            className={cn("text-transparent inline-block", className)}
+            className={cn("inline-block mask-styles", className)}
             style={internalStyle}
             {...props}
         >
