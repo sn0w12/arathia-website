@@ -39,6 +39,7 @@ export const Cloud: React.FC<CloudProps> = ({
             scale={1}
             duration={1000}
             className="absolute"
+            unsupportedBrowsers={["ios", "safari", "chrome"]}
         >
             <motion.div
                 className="relative"

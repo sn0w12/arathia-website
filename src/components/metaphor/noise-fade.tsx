@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useId } from "react";
-import { isSafari } from "@/lib/util";
+import React, { useState, useRef, useEffect, useId, useMemo } from "react";
+import { detect, type Browser } from "detect-browser";
 
 interface NoiseFadeProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
@@ -9,6 +9,7 @@ interface NoiseFadeProps extends React.HTMLAttributes<HTMLDivElement> {
     duration?: number;
     className?: string;
     scale?: number;
+    unsupportedBrowsers?: (Browser | "bot" | "node" | "react-native")[];
 }
 
 type AnimationState = "hidden" | "entering" | "entered" | "exiting";
@@ -20,10 +21,15 @@ export function NoiseFade({
     className,
     scale = 1,
     style,
+    unsupportedBrowsers = ["ios", "safari"],
     ...props
 }: NoiseFadeProps) {
     const [animationStage, setAnimationStage] =
         useState<AnimationState>("hidden");
+    const browser = useMemo(() => {
+        const detected = detect();
+        return detected;
+    }, []);
     const animationId = useId();
 
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -108,7 +114,7 @@ export function NoiseFade({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inProp, duration]);
 
-    if (isSafari()) {
+    if (browser && unsupportedBrowsers.includes(browser.name)) {
         return (
             <div
                 style={{

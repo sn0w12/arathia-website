@@ -443,6 +443,7 @@ export default function CharactersPage() {
                     scale={0.5}
                     duration={500}
                     className="absolute bottom-0 right-0 overflow-visible w-[100vw] h-full pointer-events-none"
+                    unsupportedBrowsers={["ios", "safari", "chrome"]}
                 >
                     {characters.map((char, index) => (
                         <CharacterHead
