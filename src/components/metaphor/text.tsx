@@ -8,7 +8,7 @@ import React, {
     useCallback,
 } from "react";
 import { lightTextures, tightTextures, calculateScale } from "@/lib/images";
-import { cn, isSafari } from "@/lib/util";
+import { cn } from "@/lib/util";
 
 export type TextureType = "light" | "tight";
 interface TextProps extends React.ComponentProps<"span"> {
