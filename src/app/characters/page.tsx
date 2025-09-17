@@ -142,7 +142,7 @@ function CharacterHead({
                         }}
                     >
                         <Image
-                            src={powerIcons[power] as StaticImageData}
+                            src={powerIcons[power]}
                             alt={power}
                             className="z-10 relative"
                             width={200}

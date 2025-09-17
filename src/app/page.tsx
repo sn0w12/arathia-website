@@ -95,7 +95,7 @@ export default function Home() {
                 src={BackgroundBg}
                 alt="Background"
                 className="absolute inset-0 h-full w-full object-cover"
-                sizes="100vw"
+                sizes="(max-width: 768px) 1920px, 100vw"
                 priority
             />
             <Sky numClouds={10} />
@@ -103,7 +103,7 @@ export default function Home() {
                 src={BackgroundMid}
                 alt="Background"
                 className="absolute inset-0 h-full w-full object-cover"
-                sizes="100vw"
+                sizes="(max-width: 768px) 1920px, 100vw"
                 priority
             />
             <div className="relative block mx-auto mt-40 md:left-40 md:top-40 md:mt-0 md:inline-block">

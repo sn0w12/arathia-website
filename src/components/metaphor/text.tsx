@@ -8,7 +8,7 @@ import React, {
     useCallback,
 } from "react";
 import { lightTextures, tightTextures, calculateScale } from "@/lib/images";
-import { cn } from "@/lib/util";
+import { cn, isSafari } from "@/lib/util";
 
 export type TextureType = "light" | "tight";
 interface TextProps extends React.ComponentProps<"span"> {
@@ -84,6 +84,19 @@ export function Text({
         color: textColor,
         ...style,
     };
+
+    if (isSafari()) {
+        return (
+            <span
+                ref={ref}
+                className={cn("inline-block", className)}
+                style={{ color: textColor, ...style }}
+                {...props}
+            >
+                {children}
+            </span>
+        );
+    }
 
     return (
         <span

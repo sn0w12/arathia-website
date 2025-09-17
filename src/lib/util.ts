@@ -33,3 +33,7 @@ export function handleHover(
 export function randomBetween(min: number, max: number) {
     return Math.random() * (max - min) + min;
 }
+
+export function isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}

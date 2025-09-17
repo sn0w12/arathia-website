@@ -7,7 +7,7 @@ import {
     lines,
     smallImages,
 } from "@/lib/images";
-import { cn } from "@/lib/util";
+import { cn, isSafari } from "@/lib/util";
 import {
     forwardRef,
     memo,
@@ -250,6 +250,7 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
         offset = 0,
         animateScale = true,
     } = props;
+
     const randomImage = useCallback((images: ImageInfo[]) => {
         return images[Math.floor(Math.random() * images.length)];
     }, []);
@@ -430,6 +431,8 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
     const leftPercent = align === "left" ? 0 : align === "right" ? 100 : 50;
     const translateXPercent =
         align === "left" ? 0 : align === "right" ? -100 : -50;
+
+    if (isSafari()) return null;
 
     return (
         <div

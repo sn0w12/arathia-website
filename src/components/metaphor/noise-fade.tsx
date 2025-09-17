@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useId } from "react";
+import { isSafari } from "@/lib/util";
 
 interface NoiseFadeProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
@@ -106,6 +107,22 @@ export function NoiseFade({
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inProp, duration]);
+
+    if (isSafari()) {
+        return (
+            <div
+                style={{
+                    opacity: inProp ? 1 : 0,
+                    transition: `opacity ${duration}ms ease-in-out`,
+                    ...style,
+                }}
+                className={className}
+                {...props}
+            >
+                {children}
+            </div>
+        );
+    }
 
     const baseFrequency = 0.02 * scale;
     return (
