@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
     },
     experimental: {
         reactCompiler: true,
+        inlineCss: true,
     },
     async headers() {
         return [
