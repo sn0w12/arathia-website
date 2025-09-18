@@ -1,0 +1,80 @@
+[
+  {
+    "url": "/textures/clouds.webp",
+    "size": [
+      3176,
+      381
+    ],
+    "bbox": [
+      0,
+      0,
+      689,
+      287
+    ]
+  },
+  {
+    "url": "/textures/clouds.webp",
+    "size": [
+      3176,
+      381
+    ],
+    "bbox": [
+      689,
+      0,
+      684,
+      381
+    ]
+  },
+  {
+    "url": "/textures/clouds.webp",
+    "size": [
+      3176,
+      381
+    ],
+    "bbox": [
+      1373,
+      0,
+      533,
+      261
+    ]
+  },
+  {
+    "url": "/textures/clouds.webp",
+    "size": [
+      3176,
+      381
+    ],
+    "bbox": [
+      1906,
+      0,
+      444,
+      239
+    ]
+  },
+  {
+    "url": "/textures/clouds.webp",
+    "size": [
+      3176,
+      381
+    ],
+    "bbox": [
+      2350,
+      0,
+      381,
+      217
+    ]
+  },
+  {
+    "url": "/textures/clouds.webp",
+    "size": [
+      3176,
+      381
+    ],
+    "bbox": [
+      2731,
+      0,
+      445,
+      350
+    ]
+  }
+]

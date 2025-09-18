@@ -1,0 +1,54 @@
+[
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      0,
+      0,
+      1028,
+      89
+    ]
+  },
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      1028,
+      0,
+      1033,
+      89
+    ]
+  },
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      2061,
+      0,
+      1032,
+      89
+    ]
+  },
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      0,
+      89,
+      1022,
+      88
+    ]
+  }
+]

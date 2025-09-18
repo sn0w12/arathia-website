@@ -1,0 +1,80 @@
+[
+  {
+    "url": "/textures/hover_bg.webp",
+    "size": [
+      3771,
+      1267
+    ],
+    "bbox": [
+      0,
+      1250,
+      903,
+      17
+    ]
+  },
+  {
+    "url": "/textures/hover_bg.webp",
+    "size": [
+      3771,
+      1267
+    ],
+    "bbox": [
+      903,
+      1250,
+      1012,
+      13
+    ]
+  },
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      1022,
+      89,
+      2621,
+      10
+    ]
+  },
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      0,
+      177,
+      2428,
+      9
+    ]
+  },
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      0,
+      186,
+      2453,
+      10
+    ]
+  },
+  {
+    "url": "/textures/textures_1.webp",
+    "size": [
+      3643,
+      206
+    ],
+    "bbox": [
+      0,
+      196,
+      2587,
+      10
+    ]
+  }
+]

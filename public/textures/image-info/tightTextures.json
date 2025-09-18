@@ -1,0 +1,41 @@
+[
+  {
+    "url": "/textures/textures_2.webp",
+    "size": [
+      3204,
+      291
+    ],
+    "bbox": [
+      0,
+      0,
+      1601,
+      145
+    ]
+  },
+  {
+    "url": "/textures/textures_2.webp",
+    "size": [
+      3204,
+      291
+    ],
+    "bbox": [
+      1601,
+      0,
+      1603,
+      145
+    ]
+  },
+  {
+    "url": "/textures/textures_2.webp",
+    "size": [
+      3204,
+      291
+    ],
+    "bbox": [
+      0,
+      145,
+      1601,
+      146
+    ]
+  }
+]
