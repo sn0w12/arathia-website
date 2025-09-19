@@ -168,7 +168,7 @@ export default function TimelinePage() {
                 priority
             />
             <div className="absolute left-1/2 -translate-x-1/2 top-10">
-                <div className="fixed text-6xl font-black top-1.5 left-1 z-10 pointer-events-auto">
+                <div className="fixed text-5xl md:text-6xl font-black top-2 md:top-1.5 left-1 z-10 pointer-events-auto">
                     <div
                         ref={backRef}
                         onMouseEnter={() => {
@@ -191,13 +191,13 @@ export default function TimelinePage() {
                     <div className="flex items-baseline">
                         <Text
                             textColor="var(--accent)"
-                            className="text-9xl font-black"
+                            className="text-6xl md:text-9xl font-black"
                         >
                             TIMELINE
                         </Text>
                     </div>
                 </div>
-                <div className="flex flex-row space-x-8 mt-8">
+                <div className="flex flex-col md:flex-row md:space-x-8 mt-8 items-center justify-center">
                     {timelineKeys.map((key, index) => (
                         <div
                             key={index}
@@ -215,7 +215,7 @@ export default function TimelinePage() {
                             <AnimatedBackground
                                 hovered={selectedIndex === index + 1}
                             >
-                                <Text className="text-5xl font-bold">
+                                <Text className="text-4xl md:text-5xl font-bold">
                                     {key}
                                 </Text>
                             </AnimatedBackground>
@@ -226,7 +226,6 @@ export default function TimelinePage() {
             <div className="relative left-0 top-[30vh] overflow-y-auto h-[70vh] w-full px-8 overflow-x-hidden">
                 <div className="mx-auto h-full">
                     <div className="timeline-container relative z-10">
-                        <div className="timeline-line absolute left-1/2 transform -translate-x-1/2 w-1 bg-white h-full z-0 opacity-50"></div>
                         {loading ? (
                             <Text className="text-center">Loading...</Text>
                         ) : allTimelineData[selected] ? (
@@ -248,67 +247,74 @@ export default function TimelinePage() {
                                                 {sub.title}
                                             </p>
                                             <Divider className="mb-6 w-80 mx-auto" />
-                                            {sub.events.map(
-                                                (event, eventIndex) => {
-                                                    const isLeft =
-                                                        (eraIndex +
-                                                            subIndex +
-                                                            eventIndex) %
-                                                            2 ===
-                                                        0;
-                                                    return (
-                                                        <div
-                                                            key={
-                                                                event.year +
-                                                                event.title
-                                                            }
-                                                            className={`timeline-item flex ${
-                                                                isLeft
-                                                                    ? "justify-start"
-                                                                    : "justify-end"
-                                                            } items-center mb-8 relative`}
-                                                        >
+                                            <div className="relative">
+                                                <div className="absolute left-4 md:left-1/2 md:transform md:-translate-x-1/2 w-1 bg-white z-0 top-0 bottom-0" />
+                                                {sub.events.map(
+                                                    (event, eventIndex) => {
+                                                        const isLeft =
+                                                            (eraIndex +
+                                                                subIndex +
+                                                                eventIndex) %
+                                                                2 ===
+                                                            0;
+                                                        return (
                                                             <div
-                                                                className={`timeline-content ${
+                                                                key={
+                                                                    event.year +
+                                                                    event.title
+                                                                }
+                                                                className={`timeline-item flex justify-start ${
                                                                     isLeft
-                                                                        ? "text-right pr-8"
-                                                                        : "text-left pl-8"
-                                                                } w-1/2`}
+                                                                        ? "md:justify-start"
+                                                                        : "md:justify-end"
+                                                                } items-center mb-6 relative`}
                                                             >
-                                                                <p className="text-2xl font-normal">
-                                                                    <span className="font-bold text-accent">
+                                                                <div
+                                                                    className={`timeline-content text-left pl-8 ${
+                                                                        isLeft
+                                                                            ? "md:text-right"
+                                                                            : "md:text-left"
+                                                                    } ${
+                                                                        isLeft
+                                                                            ? "md:pr-8 md:pl-0"
+                                                                            : "md:pl-8 md:pr-0"
+                                                                    } w-full md:w-1/2`}
+                                                                >
+                                                                    <p className="text-xl md:text-2xl font-normal">
+                                                                        <span className="font-bold text-accent">
+                                                                            {
+                                                                                event.year
+                                                                            }
+                                                                        </span>
+                                                                        :{" "}
                                                                         {
-                                                                            event.year
-                                                                        }
-                                                                    </span>
-                                                                    :{" "}
-                                                                    {
-                                                                        event.title
-                                                                    }{" "}
-                                                                    <span className="text-lg italic text-gray-400">
-                                                                        (
-                                                                        {
-                                                                            event.level
-                                                                        }
-                                                                        )
-                                                                    </span>
-                                                                    <br />
-                                                                    <span className="text-xl text-gray-300 mt-2 block">
-                                                                        {
-                                                                            event.description
-                                                                        }
-                                                                    </span>
-                                                                </p>
+                                                                            event.title
+                                                                        }{" "}
+                                                                        <span className="text-base md:text-lg italic text-gray-400">
+                                                                            (
+                                                                            {
+                                                                                event.level
+                                                                            }
+                                                                            )
+                                                                        </span>
+                                                                        <br />
+                                                                        <span className="text-lg md:text-xl text-gray-300 mt-2 block">
+                                                                            {
+                                                                                event.description
+                                                                            }
+                                                                        </span>
+                                                                    </p>
+                                                                </div>
+                                                                <div
+                                                                    className={`timeline-dot absolute left-4 md:left-1/2 transform -translate-x-1/2 w-4 h-4 ${getDotColor(
+                                                                        event.level
+                                                                    )} rounded-full z-10`}
+                                                                ></div>
                                                             </div>
-                                                            <div
-                                                                className={`timeline-dot absolute left-1/2 transform -translate-x-1/2 w-4 h-4 ${getDotColor(
-                                                                    event.level
-                                                                )} rounded-full z-10`}
-                                                            ></div>
-                                                        </div>
-                                                    );
-                                                }
-                                            )}
+                                                        );
+                                                    }
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

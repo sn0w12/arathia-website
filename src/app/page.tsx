@@ -28,7 +28,7 @@ export default function Home() {
             { text: "Wiki", href: "https://arathia.net/wiki" },
             { text: "Map", href: "/map" },
             { text: "Timeline", href: "/timeline" },
-            { text: "Characters", href: "/characters" },
+            { text: "Characters", href: "/characters", hideOnMobile: true },
         ],
         []
     );
@@ -98,7 +98,7 @@ export default function Home() {
                 sizes="(max-width: 768px) 1920px, 100vw"
                 priority
             />
-            <Sky numClouds={10} />
+            <Sky numClouds={10} className="hidden md:block" />
             <Image
                 src={BackgroundMid}
                 alt="Background"
@@ -106,8 +106,8 @@ export default function Home() {
                 sizes="(max-width: 768px) 1920px, 100vw"
                 priority
             />
-            <div className="relative block mx-auto mt-40 md:left-40 md:top-40 md:mt-0 md:inline-block">
-                <div className="flex flex-col items-center md:flex-row gap-8">
+            <div className="relative flex items-center justify-center min-h-screen md:min-h-0 md:block md:left-40 md:top-40 md:mt-0">
+                <div className="flex flex-col items-center md:flex-row gap-4 md:gap-8">
                     <div className="flex flex-col items-center md:items-start">
                         <AnimatedLink
                             ref={linkRefs.current[0]}
@@ -126,7 +126,9 @@ export default function Home() {
                                 ref={linkRefs.current[index + 1]}
                                 text={link.text}
                                 href={link.href}
-                                className="text-5xl font-normal"
+                                className={`text-4xl md:text-5xl font-normal ${
+                                    link.hideOnMobile ? "hidden md:block" : ""
+                                }`}
                                 selected={selected === index + 1}
                                 textureType="tight"
                                 onHover={(ref) =>
