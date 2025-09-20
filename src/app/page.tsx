@@ -10,12 +10,10 @@ import { playSound } from "@/lib/audio";
 import { useTransition } from "@/contexts/transition-context";
 import { useNavigation } from "@/hooks/use-navigation";
 import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
-
-import BackgroundBg from "../../public/bg/home-background-background.webp";
-import BackgroundMid from "../../public/bg/home-background-midground.webp";
-import SonsOfAntares from "../../public/logos/groups/Sons_of_antares.png";
-import { handleHover } from "@/lib/util";
 import { Sky } from "@/components/metaphor/map/sky";
+import { handleHover } from "@/lib/util";
+
+import SonsOfAntares from "../../public/logos/groups/Sons_of_antares.png";
 
 export default function Home() {
     const { isOpen, setIsOpen, scale, duration } = useTransition();
@@ -91,21 +89,31 @@ export default function Home() {
             className="fixed inset-0 h-screen"
             style={{ cursor: isUsingController ? "none" : "auto" }}
         >
-            <Image
-                src={BackgroundBg}
-                alt="Background"
-                className="absolute inset-0 h-full w-full object-cover"
-                sizes="(max-width: 768px) 1920px, 100vw"
-                priority
-            />
+            <picture className="absolute inset-0 h-full w-full">
+                <source
+                    media="(max-width: 768px)"
+                    srcSet="/bg/home-background-background-mobile.webp"
+                />
+                <img
+                    src="/bg/home-background-background.webp"
+                    alt="Background"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading="eager"
+                />
+            </picture>
             <Sky numClouds={10} className="hidden md:block" />
-            <Image
-                src={BackgroundMid}
-                alt="Background"
-                className="absolute inset-0 h-full w-full object-cover"
-                sizes="(max-width: 768px) 1920px, 100vw"
-                priority
-            />
+            <picture className="absolute inset-0 h-full w-full">
+                <source
+                    media="(max-width: 768px)"
+                    srcSet="/bg/home-background-midground-mobile.webp"
+                />
+                <img
+                    src="/bg/home-background-midground.webp"
+                    alt="Background"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading="eager"
+                />
+            </picture>
             <div className="relative flex items-center justify-center min-h-screen md:min-h-0 md:block md:left-40 md:top-40 md:mt-0">
                 <div className="flex flex-col items-center md:flex-row gap-4 md:gap-8">
                     <div className="flex flex-col items-center md:items-start">
@@ -147,6 +155,7 @@ export default function Home() {
                         alt="Sons of Antares"
                         className="h-auto w-40 md:h-88 md:w-auto"
                         width={167}
+                        priority
                     />
                 </div>
                 {droplets.map((d) => (
