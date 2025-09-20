@@ -37,10 +37,8 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <head>
                 {isDevelopment && (
-                    <script
-                        src="https://unpkg.com/react-scan/dist/auto.global.js"
-                        async
-                    />
+                    // eslint-disable-next-line @next/next/no-sync-scripts
+                    <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
                 )}
             </head>
             <body className={`${juana.className} antialiased overflow-hidden`}>
