@@ -115,7 +115,7 @@ export default function Home() {
                 />
             </picture>
             <div className="relative flex items-center justify-center min-h-screen md:min-h-0 md:block md:left-40 md:top-40 md:mt-0">
-                <div className="flex flex-col items-center md:flex-row gap-4 md:gap-8">
+                <div className="flex flex-col items-center md:flex-row gap-4 mb-[20vh] md:mb-0 md:gap-8">
                     <div className="flex flex-col items-center md:items-start">
                         <AnimatedLink
                             ref={linkRefs.current[0]}
