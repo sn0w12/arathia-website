@@ -152,8 +152,8 @@ export function NoiseFade({
                         <feTurbulence
                             type="fractalNoise"
                             baseFrequency={baseFrequency}
-                            numOctaves="3"
-                            seed="1"
+                            numOctaves="2"
+                            seed={animationId}
                             result="noise"
                         />
                         <feComponentTransfer in="noise">
@@ -215,8 +215,8 @@ export function NoiseFade({
                         <feTurbulence
                             type="fractalNoise"
                             baseFrequency={baseFrequency}
-                            numOctaves="3"
-                            seed="1"
+                            numOctaves="2"
+                            seed={animationId}
                             result="noise"
                         />
                         <feComponentTransfer in="noise">
