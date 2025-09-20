@@ -44,9 +44,7 @@ export default function RootLayout({
                 )}
             </head>
             <body className={`${juana.className} antialiased overflow-hidden`}>
-                <TransitionProvider>
-                    <div className="font-[juana]">{children}</div>
-                </TransitionProvider>
+                <TransitionProvider>{children}</TransitionProvider>
             </body>
         </html>
     );
