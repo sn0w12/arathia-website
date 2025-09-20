@@ -257,17 +257,23 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
 
     const [currentImage, setCurrentImage] = useState(() => randomImage(images));
     const lastIndexRef = useRef(-1);
-    const [flipH, setFlipH] = useState(1);
-    const [flipV, setFlipV] = useState(1);
-    const [internalScale, setInternalScale] = useState({ x: 0, y: 0 });
-    const [scaleMultiplier, setScaleMultiplier] = useState(1);
-    const [animationMultiplier, setAnimationMultiplier] = useState(1);
+    const [flipState, setFlipState] = useState({ h: 1, v: 1 });
+
+    const [scaleState, setScaleState] = useState({
+        internal: { x: 0, y: 0 },
+        multiplier: 1,
+        animation: 1,
+    });
     const [transition, setTransition] = useState("none");
     const ref = useRef<HTMLDivElement>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-    const [x, y, w, h] = currentImage.bbox;
-    const imageWidth = currentImage.size[0];
-    const imageHeight = currentImage.size[1];
+
+    const imageMetrics = useMemo(() => {
+        const [x, y, w, h] = currentImage.bbox;
+        const [imageWidth, imageHeight] = currentImage.size;
+        return { x, y, w, h, imageWidth, imageHeight };
+    }, [currentImage.bbox, currentImage.size]);
+
     const [currentRotation, setCurrentRotation] = useState(() => {
         if (typeof rotation === "number") return rotation;
         return rotation.min + Math.random() * (rotation.max - rotation.min);
@@ -278,6 +284,21 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
     });
     const [isShowing, setIsShowing] = useState(true);
     const resolvedScale = useMemo(() => resolveScale(scale), [scale]);
+
+    const positioning = useMemo(
+        () => ({
+            leftPercent: align === "left" ? 0 : align === "right" ? 100 : 50,
+            translateXPercent:
+                align === "left" ? 0 : align === "right" ? -100 : -50,
+            transformOrigin:
+                align === "left"
+                    ? "left center"
+                    : align === "right"
+                    ? "right center"
+                    : "center",
+        }),
+        [align]
+    );
 
     const getRandomIndex = useCallback((images: ImageInfo[]) => {
         let newIndex;
@@ -335,21 +356,25 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
                     activeSprites.add(newIndex);
                     lastIndexRef.current = newIndex;
                     setCurrentImage(sprite);
-                    setFlipH(newFlipH);
-                    setFlipV(newFlipV);
-                    setScaleMultiplier(newScaleMultiplier);
-                    setInternalScale(newScale);
+                    setFlipState({ h: newFlipH, v: newFlipV });
+                    setScaleState({
+                        internal: newScale,
+                        multiplier: newScaleMultiplier,
+                        animation: animateScale ? 0.99 : 1,
+                    });
                     setCurrentRotation(newRotation);
                     setCurrentOffset(newOffset);
 
                     // Disable transition, set to smaller scale instantly (only if animateScale)
                     if (animateScale) {
                         setTransition("none");
-                        setAnimationMultiplier(0.99);
                         // Re-enable transition and animate to full scale
                         setTimeout(() => {
                             setTransition("transform 0.3s ease-out");
-                            setAnimationMultiplier(1);
+                            setScaleState((prev) => ({
+                                ...prev,
+                                animation: 1,
+                            }));
                         }, 10);
                     }
 
@@ -399,14 +424,14 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
                 const newScale = calculateScale(
                     currentImage,
                     resolvedScale,
-                    scaleMultiplier,
-                    flipH,
-                    flipV,
+                    scaleState.multiplier,
+                    flipState.h,
+                    flipState.v,
                     fitMode,
                     ref
                 );
                 setTransition("none");
-                setInternalScale(newScale);
+                setScaleState((prev) => ({ ...prev, internal: newScale }));
                 setTimeout(() => {
                     setTransition(
                         animateScale ? "transform 0.3s ease-out" : "none"
@@ -415,22 +440,19 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
             }
         }
     }, [
-        w,
-        h,
+        imageMetrics.w,
+        imageMetrics.h,
         scale,
         animateScale,
         currentImage.scale?.x,
         currentImage.scale?.y,
-        scaleMultiplier,
-        flipH,
-        flipV,
+        scaleState.multiplier,
+        flipState.h,
+        flipState.v,
         fitMode,
         currentImage,
         resolvedScale,
     ]);
-    const leftPercent = align === "left" ? 0 : align === "right" ? 100 : 50;
-    const translateXPercent =
-        align === "left" ? 0 : align === "right" ? -100 : -50;
 
     return (
         <div
@@ -444,29 +466,26 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
                     position: "absolute",
                     pointerEvents: "none",
                     top: "50%",
-                    left: `calc(${leftPercent}% + ${currentOffset}%)`,
-                    width: w,
-                    height: h,
+                    left: `calc(${positioning.leftPercent}% + ${currentOffset}%)`,
+                    width: imageMetrics.w,
+                    height: imageMetrics.h,
                     backgroundColor: color,
-                    transform: `translate(${translateXPercent}%, -50%) scale(${
-                        internalScale.x *
-                        (animateScale ? animationMultiplier : 1)
+                    transform: `translate(${
+                        positioning.translateXPercent
+                    }%, -50%) scale(${
+                        scaleState.internal.x *
+                        (animateScale ? scaleState.animation : 1)
                     }, ${
-                        internalScale.y *
-                        (animateScale ? animationMultiplier : 1)
+                        scaleState.internal.y *
+                        (animateScale ? scaleState.animation : 1)
                     }) rotate(${currentRotation}deg)`,
                     willChange: "transform, opacity",
-                    transformOrigin:
-                        align === "left"
-                            ? "left center"
-                            : align === "right"
-                            ? "right center"
-                            : "center",
+                    transformOrigin: positioning.transformOrigin,
                     zIndex: 0,
                     transition: transition,
                     "--mask-url": `url(${currentImage.url})`,
-                    "--mask-size": `${imageWidth}px ${imageHeight}px`,
-                    "--mask-position": `-${x}px -${y}px`,
+                    "--mask-size": `${imageMetrics.imageWidth}px ${imageMetrics.imageHeight}px`,
+                    "--mask-position": `-${imageMetrics.x}px -${imageMetrics.y}px`,
                 } as React.CSSProperties
             }
         />
@@ -474,5 +493,14 @@ const ImageBboxComponent = function ImageBbox(props: ImageBboxProps) {
 };
 
 export const ImageBbox = memo(ImageBboxComponent, (prevProps, nextProps) => {
-    return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+    const keys = Object.keys(prevProps) as (keyof ImageBboxProps)[];
+    return keys.every((key) => {
+        if (key === "images") {
+            return (
+                prevProps.images === nextProps.images &&
+                prevProps.images.length === nextProps.images.length
+            );
+        }
+        return prevProps[key] === nextProps[key];
+    });
 });
