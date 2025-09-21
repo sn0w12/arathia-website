@@ -27,6 +27,10 @@ const nextConfig: NextConfig = {
     async headers() {
         return [
             {
+                source: "/:path*",
+                headers: generateCacheHeaders(3600, 86400),
+            },
+            {
                 source: "/:all*(jpg|jpeg|png|webp|avif|gif|svg)",
                 headers: generateCacheHeaders(86400),
             },
