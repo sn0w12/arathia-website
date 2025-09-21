@@ -36,10 +36,8 @@ export const Cloud: React.FC<CloudProps> = ({
     return (
         <NoiseFade
             in={isVisible}
-            scale={1}
-            duration={1000}
             className="absolute"
-            unsupportedBrowsers={["ios", "safari", "chrome"]}
+            unsupportedBrowsers={["ios", "safari"]}
         >
             <motion.div
                 className="relative"

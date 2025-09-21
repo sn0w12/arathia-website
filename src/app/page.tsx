@@ -16,7 +16,7 @@ import { handleHover } from "@/lib/util";
 import SonsOfAntares from "../../public/logos/groups/Sons_of_antares.png";
 
 export default function Home() {
-    const { isOpen, setIsOpen, scale, duration } = useTransition();
+    const { isOpen, setIsOpen, duration } = useTransition();
     const [selected, setSelected] = useState<number>(0);
     const [droplets, setDroplets] = useState<
         Array<{ id: number; x: number; y: number }>
@@ -84,7 +84,6 @@ export default function Home() {
     return (
         <NoiseFade
             in={isOpen}
-            scale={scale}
             duration={duration}
             className="fixed inset-0 h-screen"
             style={{ cursor: isUsingController ? "none" : "auto" }}

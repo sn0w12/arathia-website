@@ -5,7 +5,6 @@ import React, { createContext, useContext, useState } from "react";
 interface TransitionContextType {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    scale: number;
     duration: number;
 }
 
@@ -17,13 +16,10 @@ export const TransitionProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const scale = 0.2;
     const duration = 1000;
 
     return (
-        <TransitionContext.Provider
-            value={{ isOpen, setIsOpen, scale, duration }}
-        >
+        <TransitionContext.Provider value={{ isOpen, setIsOpen, duration }}>
             {children}
         </TransitionContext.Provider>
     );

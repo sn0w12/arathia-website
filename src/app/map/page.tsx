@@ -11,7 +11,7 @@ const MapClient = dynamic(() => import("@/components/map/map-client"), {
 });
 
 function MapContent() {
-    const { isOpen, setIsOpen, scale, duration } = useTransition();
+    const { isOpen, setIsOpen, duration } = useTransition();
     const searchParams = useSearchParams();
 
     const initialMap = searchParams.get("map") || "Arathia";
@@ -27,7 +27,6 @@ function MapContent() {
     return (
         <NoiseFade
             in={isOpen}
-            scale={scale}
             duration={duration}
             className="fixed inset-0 h-screen"
         >

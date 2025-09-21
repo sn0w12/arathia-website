@@ -23,7 +23,7 @@ import { playSound } from "@/lib/audio";
 import Background from "../../../public/bg/characters-background.webp";
 
 export default function TimelinePage() {
-    const { isOpen, setIsOpen, scale, duration } = useTransition();
+    const { isOpen, setIsOpen, duration } = useTransition();
     const timelineKeys = Object.keys(timelines);
     const [selectedIndex, setSelectedIndex] = useState<number>(1);
     const selected = timelineKeys[selectedIndex - 1] as keyof typeof timelines;
@@ -154,7 +154,6 @@ export default function TimelinePage() {
     return (
         <NoiseFade
             in={isOpen}
-            scale={scale}
             duration={duration}
             className="fixed inset-0 h-screen"
             style={{ cursor: isUsingController ? "none" : "auto" }}

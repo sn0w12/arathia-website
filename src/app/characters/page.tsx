@@ -127,7 +127,11 @@ function CharacterHead({
     }, [character.title]);
 
     return (
-        <div className={`${visible ? "opacity-100" : "opacity-0"}`}>
+        <NoiseFade
+            in={visible}
+            className="absolute bottom-0 right-0 overflow-visible w-[100vw] h-full pointer-events-none"
+            unsupportedBrowsers={["ios", "safari", "chrome"]}
+        >
             {character.powers.map((power, index) => {
                 const color = `var(--${power.toLowerCase()})`;
                 return powerIcons[power] ? (
@@ -188,19 +192,20 @@ function CharacterHead({
                     </ClippedText>
                 </div>
             )}
-        </div>
+        </NoiseFade>
     );
 }
 
 export default function CharactersPage() {
-    const { isOpen, setIsOpen, scale, duration } = useTransition();
+    const { isOpen, setIsOpen, duration } = useTransition();
     const [selected, setSelected] = useState<number>(1);
-    const [currentSelected, setCurrentSelected] = useState<number>(1);
-    const [fadeIn, setFadeIn] = useState<boolean>(true);
+    const [currentSelected, setCurrentSelected] = useState<number>(0);
+    const [visibleIndices, setVisibleIndices] = useState<number[]>([0]);
     const [droplets, setDroplets] = useState<
         Array<{ id: number; x: number; y: number }>
     >([]);
     const [currentTab, setCurrentTab] = useState<number>(0);
+    const transitionTimerRef = useRef<NodeJS.Timeout | null>(null);
     const characters = useMemo<Character[]>(
         () => [
             {
@@ -237,12 +242,15 @@ export default function CharactersPage() {
 
     useEffect(() => {
         if (currentCharIndex !== currentSelected) {
-            setFadeIn(false);
-            const timer = setTimeout(() => {
-                setCurrentSelected(currentCharIndex);
-                setFadeIn(true);
-            }, 500);
-            return () => clearTimeout(timer);
+            if (transitionTimerRef.current) {
+                clearTimeout(transitionTimerRef.current);
+            }
+            setVisibleIndices([currentSelected, currentCharIndex]);
+            setCurrentSelected(currentCharIndex);
+            transitionTimerRef.current = setTimeout(() => {
+                setVisibleIndices([currentCharIndex]);
+                transitionTimerRef.current = null;
+            }, 100);
         }
     }, [currentCharIndex, currentSelected]);
 
@@ -323,10 +331,17 @@ export default function CharactersPage() {
         return () => clearTimeout(timer);
     }, [setIsOpen]);
 
+    useEffect(() => {
+        return () => {
+            if (transitionTimerRef.current) {
+                clearTimeout(transitionTimerRef.current);
+            }
+        };
+    }, []);
+
     return (
         <NoiseFade
             in={isOpen}
-            scale={scale}
             duration={duration}
             className="fixed inset-0 h-screen"
             style={{ cursor: isUsingController ? "none" : "auto" }}
@@ -438,21 +453,13 @@ export default function CharactersPage() {
             </div>
 
             <div className="absolute right-0 -bottom-8 w-[100vw] h-[100vh] md:w-1/2 z-10 overflow-visible">
-                <NoiseFade
-                    in={fadeIn}
-                    scale={0.5}
-                    duration={500}
-                    className="absolute bottom-0 right-0 overflow-visible w-[100vw] h-full pointer-events-none"
-                    unsupportedBrowsers={["ios", "safari", "chrome"]}
-                >
-                    {characters.map((char, index) => (
-                        <CharacterHead
-                            key={char.name}
-                            character={char}
-                            visible={index === currentSelected}
-                        />
-                    ))}
-                </NoiseFade>
+                {characters.map((char, index) => (
+                    <CharacterHead
+                        key={char.name}
+                        character={char}
+                        visible={visibleIndices.includes(index)}
+                    />
+                ))}
             </div>
 
             <div className="fixed left-20 top-52">

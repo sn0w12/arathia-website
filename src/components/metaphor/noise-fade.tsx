@@ -8,7 +8,6 @@ interface NoiseFadeProps extends React.HTMLAttributes<HTMLDivElement> {
     in: boolean;
     duration?: number;
     className?: string;
-    scale?: number;
     unsupportedBrowsers?: (Browser | "bot" | "node" | "react-native")[];
 }
 
@@ -19,7 +18,6 @@ export function NoiseFade({
     in: inProp,
     duration = 1000,
     className,
-    scale = 1,
     style,
     unsupportedBrowsers = ["ios", "safari"],
     ...props
@@ -30,15 +28,39 @@ export function NoiseFade({
         const detected = detect();
         return detected;
     }, []);
+    const imageUrls = useMemo(
+        () =>
+            Array.from(
+                { length: 50 },
+                (_, i) =>
+                    `/textures/noise/noise_spritesheet_${i
+                        .toString()
+                        .padStart(4, "0")}.webp`
+            ),
+        []
+    );
+    const enteringValues = useMemo(
+        () =>
+            [...Array(19).fill(imageUrls[0]), ...imageUrls.slice(20)].join(";"),
+        [imageUrls]
+    );
+
+    const exitingValues = useMemo(
+        () =>
+            [
+                ...imageUrls.slice(20).reverse(),
+                ...Array(19).fill(imageUrls[0]),
+            ].join(";"),
+        [imageUrls]
+    );
+
     const animationId = useId();
 
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isMounted = useRef(true);
 
-    const animateInSlopeRef = useRef<SVGAnimateElement>(null);
-    const animateInInterceptRef = useRef<SVGAnimateElement>(null);
-    const animateOutSlopeRef = useRef<SVGAnimateElement>(null);
-    const animateOutInterceptRef = useRef<SVGAnimateElement>(null);
+    const animateInHrefRef = useRef<SVGAnimateElement>(null);
+    const animateOutHrefRef = useRef<SVGAnimateElement>(null);
 
     const startAnimations = (
         refs: React.RefObject<SVGAnimateElement | null>[]
@@ -50,19 +72,12 @@ export function NoiseFade({
                 } catch {
                     // Ignore if not running
                 }
-            }
-        });
-
-        requestAnimationFrame(() => {
-            refs.forEach((ref) => {
-                if (ref.current && isMounted.current) {
-                    try {
-                        ref.current.beginElement();
-                    } catch (e) {
-                        console.warn("Animation start failed:", e);
-                    }
+                try {
+                    ref.current.beginElement();
+                } catch (e) {
+                    console.warn("Animation start failed:", e);
                 }
-            });
+            }
         });
     };
 
@@ -85,7 +100,7 @@ export function NoiseFade({
         if (inProp) {
             setAnimationStage("entering");
 
-            startAnimations([animateInSlopeRef, animateInInterceptRef]);
+            startAnimations([animateInHrefRef]);
 
             timeoutRef.current = setTimeout(() => {
                 if (isMounted.current) {
@@ -97,7 +112,7 @@ export function NoiseFade({
 
             setAnimationStage("exiting");
 
-            startAnimations([animateOutSlopeRef, animateOutInterceptRef]);
+            startAnimations([animateOutHrefRef]);
 
             timeoutRef.current = setTimeout(() => {
                 if (isMounted.current) {
@@ -130,10 +145,8 @@ export function NoiseFade({
         );
     }
 
-    const baseFrequency = 0.02 * scale;
     return (
         <>
-            {/* SVG for enter animation */}
             <svg
                 style={{
                     position: "fixed",
@@ -144,54 +157,28 @@ export function NoiseFade({
                     pointerEvents: "none",
                     zIndex: 9998,
                     opacity: animationStage === "entering" ? 1 : 0,
-                    transition: `opacity ${duration}ms ease-in-out`,
                 }}
             >
                 <defs>
-                    <filter id={`maskFilterIn-${animationId}`}>
-                        <feTurbulence
-                            type="fractalNoise"
-                            baseFrequency={baseFrequency}
-                            numOctaves="2"
-                            seed={animationId}
-                            result="noise"
-                        />
-                        <feComponentTransfer in="noise">
-                            <feFuncA type="linear" slope="0" intercept="-5">
-                                <animate
-                                    ref={animateInSlopeRef}
-                                    id={`animateIn-${animationId}`}
-                                    attributeName="slope"
-                                    from="0"
-                                    to="15"
-                                    dur={`${duration}ms`}
-                                    fill="freeze"
-                                    begin="indefinite"
-                                    restart="always"
-                                />
-                                <animate
-                                    ref={animateInInterceptRef}
-                                    id={`animateInIntercept-${animationId}`}
-                                    attributeName="intercept"
-                                    from="-5"
-                                    to="0"
-                                    dur={`${duration}ms`}
-                                    fill="freeze"
-                                    begin="indefinite"
-                                    restart="always"
-                                />
-                            </feFuncA>
-                        </feComponentTransfer>
-                    </filter>
                     <mask id={`noiseMaskIn-${animationId}`}>
-                        <rect
+                        <image
+                            href="/textures/noise/noise_spritesheet_0000.webp"
                             x="0"
                             y="0"
                             width="100%"
                             height="100%"
-                            filter={`url(#maskFilterIn-${animationId}) brightness(10)`}
-                            fill="white"
-                        />
+                            preserveAspectRatio="none"
+                        >
+                            <animate
+                                ref={animateInHrefRef}
+                                attributeName="href"
+                                values={enteringValues}
+                                dur={`${duration}ms`}
+                                fill="freeze"
+                                begin="indefinite"
+                                restart="always"
+                            />
+                        </image>
                     </mask>
                 </defs>
             </svg>
@@ -207,54 +194,28 @@ export function NoiseFade({
                     pointerEvents: "none",
                     zIndex: 9999,
                     opacity: animationStage === "exiting" ? 1 : 0,
-                    transition: `opacity ${duration}ms ease-in-out`,
                 }}
             >
                 <defs>
-                    <filter id={`maskFilterOut-${animationId}`}>
-                        <feTurbulence
-                            type="fractalNoise"
-                            baseFrequency={baseFrequency}
-                            numOctaves="2"
-                            seed={animationId}
-                            result="noise"
-                        />
-                        <feComponentTransfer in="noise">
-                            <feFuncA type="linear" slope="15" intercept="0">
-                                <animate
-                                    ref={animateOutSlopeRef}
-                                    id={`animateOut-${animationId}`}
-                                    attributeName="slope"
-                                    from="15"
-                                    to="0"
-                                    dur={`${duration}ms`}
-                                    fill="freeze"
-                                    begin="indefinite"
-                                    restart="always"
-                                />
-                                <animate
-                                    ref={animateOutInterceptRef}
-                                    id={`animateOutIntercept-${animationId}`}
-                                    attributeName="intercept"
-                                    from="0"
-                                    to="-5"
-                                    dur={`${duration}ms`}
-                                    fill="freeze"
-                                    begin="indefinite"
-                                    restart="always"
-                                />
-                            </feFuncA>
-                        </feComponentTransfer>
-                    </filter>
                     <mask id={`noiseMaskOut-${animationId}`}>
-                        <rect
+                        <image
+                            href="/textures/noise/noise_spritesheet_0049.webp"
                             x="0"
                             y="0"
                             width="100%"
                             height="100%"
-                            filter={`url(#maskFilterOut-${animationId}) brightness(10)`}
-                            fill="white"
-                        />
+                            preserveAspectRatio="none"
+                        >
+                            <animate
+                                ref={animateOutHrefRef}
+                                attributeName="href"
+                                values={exitingValues}
+                                dur={`${duration}ms`}
+                                fill="freeze"
+                                begin="indefinite"
+                                restart="always"
+                            />
+                        </image>
                     </mask>
                 </defs>
             </svg>
