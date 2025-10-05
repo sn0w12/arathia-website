@@ -60,6 +60,14 @@ export default function RootLayout({
                         type="image/webp"
                     />
                 ))}
+                {!isDevelopment && (
+                    <script
+                        async
+                        defer
+                        data-domain="arathia.net"
+                        src="https://plausible.arathia.net/js/script.pageview-props.file-downloads.js"
+                    ></script>
+                )}
             </head>
             <body className={`${juana.className} antialiased overflow-hidden`}>
                 <TransitionProvider>{children}</TransitionProvider>
