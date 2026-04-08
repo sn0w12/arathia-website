@@ -2,12 +2,13 @@
 
 import { useEffect, useState, useRef } from "react";
 import {
-    MapContainer,
-    TileLayer,
-    LayerGroup,
-    LayersControl,
-    useMap,
-} from "react-leaflet";
+    createElementObject,
+    createTileLayerComponent,
+    type LayerProps,
+    updateGridLayer,
+    withPane,
+} from "@react-leaflet/core";
+import { MapContainer, LayerGroup, LayersControl, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { CustomMarker, MarkerType } from "./marker";
@@ -26,9 +27,74 @@ import {
     typeNames,
 } from "@/lib/map";
 import { RegionId, regionMap } from "@/lib/map/regions";
+import { TileLayer as LeafletTileLayer, type TileLayerOptions } from "leaflet";
 
 const MIN_ZOOM = 2.8;
 const MAX_ZOOM = 5.4;
+
+interface AsyncTileLayerProps extends TileLayerOptions, LayerProps {
+    url: string;
+}
+
+class AsyncLeafletTileLayer extends LeafletTileLayer {
+    override createTile(coords: L.Coords, done?: L.DoneCallback) {
+        const tile = document.createElement("img");
+        const tileDone = done ?? ((() => undefined) as L.DoneCallback);
+
+        tile.addEventListener(
+            "load",
+            () => {
+                this._tileOnLoad(tileDone, tile);
+            },
+            { once: true },
+        );
+        tile.addEventListener(
+            "error",
+            () => {
+                this._tileOnError(tileDone, tile, new Error("error"));
+            },
+            { once: true },
+        );
+
+        if (this.options.crossOrigin || this.options.crossOrigin === "") {
+            tile.crossOrigin =
+                this.options.crossOrigin === true
+                    ? ""
+                    : this.options.crossOrigin;
+        }
+
+        if (typeof this.options.referrerPolicy === "string") {
+            tile.referrerPolicy = this.options.referrerPolicy;
+        }
+
+        tile.decoding = "async";
+        tile.alt = "";
+        tile.src = this.getTileUrl(coords);
+
+        return tile;
+    }
+}
+
+const AsyncTileLayer = createTileLayerComponent<
+    LeafletTileLayer,
+    AsyncTileLayerProps
+>(
+    function createAsyncTileLayer({ url, ...options }, context) {
+        const layer = new AsyncLeafletTileLayer(
+            url,
+            withPane(options, context),
+        );
+
+        return createElementObject(layer, context);
+    },
+    function updateAsyncTileLayer(layer, props, prevProps) {
+        updateGridLayer(layer, props, prevProps);
+
+        if (props.url != null && props.url !== prevProps.url) {
+            layer.setUrl(props.url);
+        }
+    },
+);
 
 function MapResizer() {
     const map = useMap();
@@ -94,12 +160,12 @@ function BoundsUpdater({ currentMap }: { currentMap: string }) {
             const bounds = L.latLngBounds(
                 L.latLng(
                     currentConfig.bounds.southWest[0],
-                    currentConfig.bounds.southWest[1]
+                    currentConfig.bounds.southWest[1],
                 ),
                 L.latLng(
                     currentConfig.bounds.northEast[0],
-                    currentConfig.bounds.northEast[1]
-                )
+                    currentConfig.bounds.northEast[1],
+                ),
             );
             map.setMaxBounds(bounds);
         }
@@ -199,7 +265,7 @@ const YearSelector: React.FC<YearSelectorProps> = ({
                 originalUpdate.call(this);
                 // Then append the wrapper
                 let wrapper = container.querySelector(
-                    "#year-wrapper"
+                    "#year-wrapper",
                 ) as HTMLElement;
                 let select: HTMLSelectElement | null = null;
                 if (!wrapper) {
@@ -218,14 +284,14 @@ const YearSelector: React.FC<YearSelectorProps> = ({
                     select.innerHTML = variants
                         .map(
                             (variant) =>
-                                `<option value="${variant}" style="color: #181611;">${variant}</option>`
+                                `<option value="${variant}" style="color: #181611;">${variant}</option>`,
                         )
                         .join("");
                     wrapper.appendChild(label);
                     wrapper.appendChild(select);
                 } else {
                     select = wrapper.querySelector(
-                        "#year-select"
+                        "#year-select",
                     ) as HTMLSelectElement;
                 }
                 if (select) {
@@ -236,7 +302,7 @@ const YearSelector: React.FC<YearSelectorProps> = ({
                 }
                 // Find the base layers list and append after
                 const baseLayersList = container.querySelector(
-                    ".leaflet-control-layers-base"
+                    ".leaflet-control-layers-base",
                 );
                 if (baseLayersList && !baseLayersList.contains(wrapper)) {
                     baseLayersList.appendChild(wrapper);
@@ -287,7 +353,7 @@ export default function MapClient({
         }
         if (backgroundTileLayerRef.current) {
             backgroundTileLayerRef.current.setUrl(
-                mapConfigs[currentMap].backgroundUrl
+                mapConfigs[currentMap].backgroundUrl,
             );
         }
     }, [currentMap]);
@@ -298,7 +364,7 @@ export default function MapClient({
             type,
             name: `${typeNames[type]}`,
             checked: true,
-        }))
+        })),
     );
 
     const currentConfig = mapConfigs[currentMap];
@@ -338,7 +404,7 @@ export default function MapClient({
                     setCurrentMap={setCurrentMap}
                 />
                 {/* Background TileLayer */}
-                <TileLayer
+                <AsyncTileLayer
                     ref={backgroundTileLayerRef}
                     url={mapConfigs[currentMap].backgroundUrl}
                     pane="backgroundPane"
@@ -348,11 +414,11 @@ export default function MapClient({
                     {/* Base Layers */}
                     <LayersControl.BaseLayer
                         checked={["ar", "ar1213BR"].includes(
-                            mapConfigs[currentMap]?.id
+                            mapConfigs[currentMap]?.id,
                         )}
                         name="Arathia"
                     >
-                        <TileLayer
+                        <AsyncTileLayer
                             ref={baseTileLayerRef}
                             url={mapConfigs.Arathia.url}
                             pane="basePane"
@@ -363,7 +429,7 @@ export default function MapClient({
                         checked={mapConfigs[currentMap]?.id === "mo"}
                         name="Morturia"
                     >
-                        <TileLayer
+                        <AsyncTileLayer
                             url="/map/maps/morturia/{z}/{x}/{y}.webp"
                             pane="basePane"
                             noWrap
@@ -373,7 +439,7 @@ export default function MapClient({
                         checked={mapConfigs[currentMap]?.id === "el"}
                         name="Elysium"
                     >
-                        <TileLayer
+                        <AsyncTileLayer
                             url="/map/maps/elysium/{z}/{x}/{y}.webp"
                             pane="basePane"
                             noWrap
@@ -383,7 +449,7 @@ export default function MapClient({
                     {visibleOverlays.flatMap((region) =>
                         layerTypes.map((type) => {
                             const config = overlayConfigs.find(
-                                (c) => c.region === region && c.type === type
+                                (c) => c.region === region && c.type === type,
                             );
                             if (!config) return null;
                             return (
@@ -397,7 +463,7 @@ export default function MapClient({
                                             .filter(
                                                 (m) =>
                                                     m.mapId === config.region &&
-                                                    m.icon === config.type
+                                                    m.icon === config.type,
                                             )
                                             .map((marker) => (
                                                 <CustomMarker
@@ -412,7 +478,7 @@ export default function MapClient({
                                     </LayerGroup>
                                 </LayersControl.Overlay>
                             );
-                        })
+                        }),
                     )}
                 </LayersControl>
                 <YearSelector
